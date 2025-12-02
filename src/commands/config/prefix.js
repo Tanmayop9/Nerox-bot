@@ -3,7 +3,7 @@ export default class Prefix extends Command {
     constructor() {
         super(...arguments);
         this.description = 'Set, view or reset the server prefix';
-        this.userPrems = ['ManageGuild'];
+        this.userPerms = ['ManageGuild'];
         this.execute = async (client, ctx, args) => {
             const currentPrefix = await client.db.prefix.get(ctx.guild.id) || client.config.prefix;
             const input = args[0];

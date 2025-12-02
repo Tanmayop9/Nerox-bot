@@ -5,40 +5,38 @@
  */
 
 export const emoji = {
-    // Status indicators
+    // Status
     success: '`✓`',
     error: '`✗`',
-    warning: '`⚠`',
+    warning: '`!`',
     loading: '`◌`',
     
-    // Aliases for compatibility
+    // Aliases
     check: '`✓`',
     cross: '`✗`',
     timer: '`◌`',
-    warn: '`⚠`',
+    warn: '`!`',
     
-    // Info icons
+    // Info
     info: '`›`',
     info1: '`•`',
     
-    // Player controls (minimal)
-    previous: '`⏮`',
-    pause: '`⏸`',
-    resume: '`▶`',
-    next: '`⏭`',
-    stop: '`⏹`',
-    autoplay: '`∞`',
-    shuffle: '`⤮`',
-    repeat: '`↻`',
+    // Player
+    previous: '⏮',
+    pause: '⏸',
+    resume: '▶',
+    next: '⏭',
+    stop: '⏹',
+    autoplay: '∞',
+    shuffle: '🔀',
+    repeat: '🔁',
     
     // Special
-    heart: '`♡`',
-    premium: '`★`',
-    prem: '`★`',
-    bl: '`⊘`',
-    
-    // Music
-    music: '`♪`',
-    queue: '`≡`',
-    volume: '`◉`',
+    heart: '♡',
+    premium: '★',
+    prem: '★',
+    bl: '⊘',
+    music: '♪',
+    queue: '≡',
+    volume: '🔊',
 };

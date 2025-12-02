@@ -1,33 +1,41 @@
 /**
- * @nerox v1.0.0
- * @author Tanmay
- * @description Bot configuration with environment variables
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Bot configuration loaded from environment variables
  */
 
+// Parse comma-separated IDs from environment
+const parseIds = (envVar) => {
+    if (!envVar) return [];
+    return envVar.split(',').map(id => id.trim()).filter(Boolean);
+};
+
 export const config = {
-    // Bot token from environment
+    // Discord bot token
     token: process.env.DISCORD_TOKEN,
     
-    // Bot owners and admins (loaded from env or defaults)
-    owners: (process.env.BOT_OWNERS || '').split(',').filter(Boolean),
-    admins: (process.env.BOT_ADMINS || '').split(',').filter(Boolean),
+    // Bot owners (full access)
+    owners: parseIds(process.env.BOT_OWNERS),
     
-    // Command prefix
+    // Bot admins (limited admin access)
+    admins: parseIds(process.env.BOT_ADMINS),
+    
+    // Default command prefix
     prefix: process.env.BOT_PREFIX || '&',
     
-    // Support links
+    // Support server link
     links: {
-        support: process.env.SUPPORT_SERVER || 'https://discord.gg/nerox'
+        support: process.env.SUPPORT_SERVER || 'https://discord.gg/nerox',
     },
     
-    // Backup channel
+    // Backup channel for database exports
     backup: process.env.BACKUP_CHANNEL_ID,
     
     // Webhook URLs for logging
     webhooks: {
         logs: process.env.WEBHOOK_LOGS,
-        serveradd: process.env.WEBHOOK_SERVERADD,
-        serverchuda: process.env.WEBHOOK_SERVERCHUDA,
-        playerLogs: process.env.WEBHOOK_PLAYERLOGS
-    }
+        serverAdd: process.env.WEBHOOK_SERVERADD,
+        serverRemove: process.env.WEBHOOK_SERVERREMOVE,
+        playerLogs: process.env.WEBHOOK_PLAYERLOGS,
+    },
 };

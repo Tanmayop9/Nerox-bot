@@ -1,33 +1,39 @@
+/**
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Player destroy event handler
+ */
 
 import { connect247 } from '../../functions/connect247.js';
+
 const event = 'playerDestroy';
-export default class PlayerDetsroy {
+
+export default class PlayerDestroy {
     constructor() {
         this.name = event;
     }
+
     async execute(client, player) {
-        await player.data
-            .get('playEmbed')
-            ?.edit({
-            embeds: [
-                client
-                    .embed()
-                    .desc(`**Enjoying the Music Experience?**\n\n` +
-      `If you're finding value in the music, why not share it with others? 🎵\n` +
-      `Consider [**referring me**](${client.invite.admin()}) to your friends and colleagues.\n` +
-      `Your support helps improve the service, and together, we can continue providing great music for everyone.`)
-                    .setAuthor({
-                    iconURL: client.user.displayAvatarURL(),
-                    name: client.user.username,
-                })
-                    .thumb(client.user.displayAvatarURL()),
-            ],
-            components: [],
-        })
-            .catch(() => null);
+        // Update the play embed
+        const playEmbed = player.data.get('playEmbed');
+        if (playEmbed) {
+            await playEmbed.edit({
+                embeds: [
+                    client.embed().desc(
+                        `Playback ended. Thanks for listening!\n\n` +
+                        `[Invite Nerox](${client.invite.admin()}) to your other servers.`
+                    )
+                ],
+                components: [],
+            }).catch(() => null);
+        }
+
+        // Wait before checking 24/7
         await client.sleep(1.5);
-        if (await client.db.twoFourSeven.has(player.guildId))
+
+        // Reconnect if 24/7 is enabled
+        if (await client.db.twoFourSeven.has(player.guildId)) {
             await connect247(client, player.guildId);
+        }
     }
 }
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */

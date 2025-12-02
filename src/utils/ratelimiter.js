@@ -1,10 +1,26 @@
+/**
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Rate limiter for spam protection
+ */
+
 import { RateLimitManager } from '@sapphire/ratelimits';
-const manager = new RateLimitManager(5000, 7);
-export const limited = (key) => {
-    if (manager.acquire(key).limited) {
+
+// 5 actions per 10 seconds
+const rateLimiter = new RateLimitManager(10000, 5);
+
+export const limited = (userId) => {
+    const bucket = rateLimiter.acquire(userId);
+    
+    if (bucket.limited) {
         return true;
     }
-    manager.acquire(key).consume();
+    
+    bucket.consume();
     return false;
 };
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */
+
+export const getRemainingTime = (userId) => {
+    const bucket = rateLimiter.acquire(userId);
+    return bucket.remainingTime;
+};

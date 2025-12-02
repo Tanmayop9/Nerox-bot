@@ -37,7 +37,7 @@ export const zipper = async (zipPath) => {
     const archive = archiver('zip', {
         zlib: { level: 9 },
     });
-    //@ts-expect-error issues doe to node versions while compiling but fine at runtime
+    //@ts-expect-error issues due to node versions while compiling but fine at runtime
     archive.pipe(output);
     await traverseDirectoryTree(resolvedDirectoryPath, archive);
     await archive.finalize();

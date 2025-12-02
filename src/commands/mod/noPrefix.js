@@ -1,22 +1,25 @@
 /**
- * @fuego v1.0.0
- * @author painfuego (www.codes-for.fun)
- * @copyright 2024 1sT - Services | CC BY-NC-SA 4.0
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Manage no-prefix users
  */
+
 import _ from 'lodash';
 import { paginator } from '../../utils/paginator.js';
 import { Command } from '../../classes/abstract/command.js';
+
 export default class NoPrefix extends Command {
     constructor() {
         super(...arguments);
         this.mod = true;
         this.aliases = ['nop'];
-        this.description = 'Add / remove no prefix';
+        this.description = 'Manage no-prefix privileges';
+        this.usage = '<add|remove|list> [user]';
         this.options = [
             {
                 name: 'action',
                 opType: 'string',
-                description: 'Add / remove no prefix',
+                description: 'Action to perform',
                 required: true,
                 choices: [
                     { name: 'add', value: 'add' },
@@ -28,97 +31,89 @@ export default class NoPrefix extends Command {
                 name: 'user',
                 opType: 'user',
                 required: false,
-                description: 'User to add / remove',
+                description: 'Target user',
             },
         ];
-        this.execute = async (client, ctx, args) => {
-            if (!['add', 'rem', 'del', 'remove', 'list'].includes(args[0]?.toLowerCase())) {
-                ctx.reply({
-                    embeds: [client.embed().desc(`${client.emoji.cross} Please specify a valid action.`)],
-                });
-                return;
-            }
-            if (args[0].toLowerCase() === 'list') {
-                const keys = await ctx.client.db.noPrefix.keys;
-                if (!keys.length) {
-                    ctx.reply({
-                        embeds: [
-                            client
-                                .embed()
-                                .desc(`${client.emoji.cross} There are no users with no prefix privilages.`),
-                        ],
-                    });
-                    return;
-                }
-                const promises = keys.map(async (user) => await client.users.fetch(user).catch(async () => {
-                    await client.db.noPrefix.delete(user);
-                }));
-                const users = await Promise.all(promises);
-                const noPrefixUsers = users
-                    .filter((user) => user)
-                    .map((user, index) => `${index + 1} **${user?.tag}** \`[${user?.id}]\``);
-                const chunked = _.chunk(noPrefixUsers, 10);
-                const embeds = [];
-                for (const chunk of chunked) {
-                    embeds.push(client
-                        .embed()
-                        .setTitle(`${client.emoji.check} No-Prefix user's list`)
-                        .desc(chunk.join('\n')));
-                }
-                await paginator(ctx, embeds);
-                return;
-            }
-            const target = ctx.mentions.users?.first()?.id ?
-                ctx.mentions.users?.first()
-                : await client.users.fetch(args[1]).catch(() => { });
-            if (!target) {
-                ctx.reply({
-                    embeds: [client.embed().desc(`${client.emoji.cross} Please specify a valid user.`)],
-                });
-                return;
-            }
-            const status = await ctx.client.db.noPrefix.get(target.id);
-            switch (args[0].toLowerCase()) {
-                case 'add':
-                    {
-                        if (status) {
-                            ctx.reply({
-                                embeds: [client.embed().desc(`${client.emoji.cross} User already has no prefix.`)],
-                            });
-                            return;
-                        }
-                        await ctx.client.db.noPrefix.set(target.id, true);
-                        await ctx.reply({
-                            embeds: [
-                                client
-                                    .embed()
-                                    .desc(`${client.emoji.check} Successfully added no prefix privilages to \`${target.tag}\`.`),
-                            ],
-                        });
-                    }
-                    break;
-                case 'del':
-                case 'rem':
-                case 'remove':
-                    {
-                        if (!status) {
-                            ctx.reply({
-                                embeds: [client.embed().desc(`${client.emoji.cross} User does not have no prefix.`)],
-                            });
-                            return;
-                        }
-                        await ctx.client.db.noPrefix.delete(target.id);
-                        await ctx.reply({
-                            embeds: [
-                                client
-                                    .embed()
-                                    .desc(`${client.emoji.check} Successfully removed no prefix privilages from \`${target.tag}\`.`),
-                            ],
-                        });
-                    }
-                    break;
-            }
-        };
     }
+
+    execute = async (client, ctx, args) => {
+        const action = args[0]?.toLowerCase();
+
+        if (!['add', 'remove', 'list'].includes(action)) {
+            return ctx.reply({
+                embeds: [client.embed().desc('Please specify: `add`, `remove`, or `list`.')],
+            });
+        }
+
+        // List all no-prefix users
+        if (action === 'list') {
+            const keys = await client.db.noPrefix.keys;
+
+            if (!keys.length) {
+                return ctx.reply({
+                    embeds: [client.embed().desc('No users have no-prefix privileges.')],
+                });
+            }
+
+            const users = await Promise.all(
+                keys.map(async (id) => {
+                    const user = await client.users.fetch(id).catch(() => null);
+                    if (!user) await client.db.noPrefix.delete(id);
+                    return user;
+                })
+            );
+
+            const validUsers = users.filter(Boolean);
+            const list = validUsers.map((u, i) => `\`${i + 1}.\` ${u.tag} (${u.id})`);
+            
+            const chunks = _.chunk(list, 10);
+            const pages = chunks.map((chunk, i) =>
+                client.embed()
+                    .desc(chunk.join('\n'))
+                    .footer({ text: `Page ${i + 1}/${chunks.length} • ${validUsers.length} users` })
+            );
+
+            return await paginator(ctx, pages);
+        }
+
+        // Get target user
+        const target = ctx.mentions.users?.first() || 
+            await client.users.fetch(args[1]).catch(() => null);
+
+        if (!target) {
+            return ctx.reply({
+                embeds: [client.embed().desc('Please specify a valid user.')],
+            });
+        }
+
+        const hasNoPrefix = await client.db.noPrefix.has(target.id);
+
+        if (action === 'add') {
+            if (hasNoPrefix) {
+                return ctx.reply({
+                    embeds: [client.embed().desc(`**${target.tag}** already has no-prefix.`)],
+                });
+            }
+
+            await client.db.noPrefix.set(target.id, true);
+
+            return ctx.reply({
+                embeds: [client.embed().desc(`Granted no-prefix to **${target.tag}**.`)],
+            });
+        }
+
+        if (action === 'remove') {
+            if (!hasNoPrefix) {
+                return ctx.reply({
+                    embeds: [client.embed().desc(`**${target.tag}** doesn't have no-prefix.`)],
+                });
+            }
+
+            await client.db.noPrefix.delete(target.id);
+
+            return ctx.reply({
+                embeds: [client.embed().desc(`Revoked no-prefix from **${target.tag}**.`)],
+            });
+        }
+    };
 }
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */

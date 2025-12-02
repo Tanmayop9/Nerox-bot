@@ -1,21 +1,26 @@
 /**
- * @fuego v1.0.0
- * @author painfuego
- * @copyright 2024 1sT - Services | CC BY-NC-SA 4.0
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Manage server premium status
  */
+
+import _ from 'lodash';
+import { paginator } from '../../utils/paginator.js';
 import { Command } from '../../classes/abstract/command.js';
 
-export default class PremiumServer extends Command {
+export default class ServerPremium extends Command {
     constructor() {
         super(...arguments);
+        this.name = 'serverpremium';
+        this.aliases = ['sp', 'guildpremium'];
         this.mod = true;
-        this.aliases = ['ps', 'premserver'];
-        this.description = 'Add / remove a server from the premium list';
+        this.description = 'Manage server premium';
+        this.usage = '<add|remove|list> [server_id]';
         this.options = [
             {
                 name: 'action',
                 opType: 'string',
-                description: 'Add or remove a server',
+                description: 'Action to perform',
                 required: true,
                 choices: [
                     { name: 'add', value: 'add' },
@@ -24,73 +29,87 @@ export default class PremiumServer extends Command {
                 ],
             },
             {
-                name: 'server_id',
+                name: 'server',
                 opType: 'string',
                 required: false,
-                description: 'Server ID to add/remove',
+                description: 'Server ID',
             },
         ];
-        this.execute = async (client, ctx, args) => {
-            if (!['add', 'remove', 'list'].includes(args[0]?.toLowerCase())) {
-                return ctx.reply({
-                    embeds: [client.embed().desc(`${client.emoji.cross} Please specify a valid action: add, remove, or list.`)],
-                });
-            }
-
-            if (args[0].toLowerCase() === 'list') {
-                const keys = await client.db.serverstaff.keys;
-                if (!keys.length) {
-                    return ctx.reply({
-                        embeds: [client.embed().desc(`${client.emoji.cross} No servers currently have premium access.`)],
-                    });
-                }
-
-                const serverDetails = await Promise.all(keys.map(async (id, index) => {
-                    const server = client.guilds.cache.get(id) || await client.guilds.fetch(id).catch(() => null);
-                    return `${index + 1}. **${server?.name || 'Unknown Server'}** : [\`${id}\`]`;
-                }));
-
-                return ctx.reply({
-                    embeds: [
-                        client.embed()
-                            .setTitle(`${client.emoji.check} Premium Servers List`)
-                            .desc(serverDetails.join('\n')),
-                    ],
-                });
-            }
-
-            const serverId = args[1] || ctx.guild?.id;
-            if (!serverId) {
-                return ctx.reply({
-                    embeds: [client.embed().desc(`${client.emoji.cross} Please provide a valid server ID or use the command in a server.`)],
-                });
-            }
-
-            const isPremium = await client.db.serverstaff.has(serverId);
-
-            if (args[0].toLowerCase() === 'add') {
-                if (isPremium) {
-                    return ctx.reply({
-                        embeds: [client.embed().desc(`${client.emoji.cross} This server already has premium access.`)],
-                    });
-                }
-                await client.db.serverstaff.set(serverId, true);
-                return ctx.reply({
-                    embeds: [client.embed().desc(`${client.emoji.check} Successfully added server \`${serverId}\` to the premium list.`)],
-                });
-            }
-
-            if (args[0].toLowerCase() === 'remove') {
-                if (!isPremium) {
-                    return ctx.reply({
-                        embeds: [client.embed().desc(`${client.emoji.cross} This server is not in the premium list.`)],
-                    });
-                }
-                await client.db.serverstaff.delete(serverId);
-                return ctx.reply({
-                    embeds: [client.embed().desc(`${client.emoji.check} Successfully removed server \`${serverId}\` from the premium list.`)],
-                });
-            }
-        };
     }
+
+    execute = async (client, ctx, args) => {
+        const action = args[0]?.toLowerCase();
+
+        if (!['add', 'remove', 'list'].includes(action)) {
+            return ctx.reply({
+                embeds: [client.embed().desc('Please specify: `add`, `remove`, or `list`.')],
+            });
+        }
+
+        // List all premium servers
+        if (action === 'list') {
+            const keys = await client.db.serverstaff.keys;
+
+            if (!keys.length) {
+                return ctx.reply({
+                    embeds: [client.embed().desc('No premium servers found.')],
+                });
+            }
+
+            const servers = keys.map((id) => {
+                const guild = client.guilds.cache.get(id);
+                return guild ? `\`${guild.name}\` (${id})` : `Unknown (${id})`;
+            });
+
+            const chunks = _.chunk(servers, 10);
+            const pages = chunks.map((chunk, i) =>
+                client.embed()
+                    .desc(chunk.join('\n'))
+                    .footer({ text: `Page ${i + 1}/${chunks.length} • ${keys.length} servers` })
+            );
+
+            return await paginator(ctx, pages);
+        }
+
+        // Get target server
+        const serverId = args[1] || ctx.guild?.id;
+
+        if (!serverId) {
+            return ctx.reply({
+                embeds: [client.embed().desc('Please specify a server ID.')],
+            });
+        }
+
+        const guild = client.guilds.cache.get(serverId);
+        const guildName = guild?.name || 'Unknown Server';
+        const hasPremium = await client.db.serverstaff.has(serverId);
+
+        if (action === 'add') {
+            if (hasPremium) {
+                return ctx.reply({
+                    embeds: [client.embed().desc(`**${guildName}** already has premium.`)],
+                });
+            }
+
+            await client.db.serverstaff.set(serverId, true);
+
+            return ctx.reply({
+                embeds: [client.embed().desc(`Added premium to **${guildName}**.`)],
+            });
+        }
+
+        if (action === 'remove') {
+            if (!hasPremium) {
+                return ctx.reply({
+                    embeds: [client.embed().desc(`**${guildName}** doesn't have premium.`)],
+                });
+            }
+
+            await client.db.serverstaff.delete(serverId);
+
+            return ctx.reply({
+                embeds: [client.embed().desc(`Removed premium from **${guildName}**.`)],
+            });
+        }
+    };
 }

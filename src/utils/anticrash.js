@@ -1,19 +1,19 @@
 /**
- * @nerox v1.0.0
- * @author Tanmay
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Anti-crash handler
  */
-import { log } from '../logger.js';
-const handleCrash = (type, ...args) => {
-    const err = `${args[0]}`.toLowerCase();
-    if (err.includes('unknown message') || err.includes('already destroyed')) {
-        return;
-    }
-    log(`[ Anti-Crash ] - ${type} - ${args[0]}:`, 'error');
-    console.error(...args);
-};
+
 export const loadAntiCrash = () => {
-    log('[ Anti-Crash ] is now ◉ LiVE checking over crashes', 'success');
-    process.on('uncaughtException', (...args) => handleCrash('UncaughtException', ...args));
-    process.on('unhandledRejection', (...args) => handleCrash('UnhandledRejection', ...args));
+    process.on('unhandledRejection', (reason, promise) => {
+        console.error('[AntiCrash] Unhandled Rejection:', reason);
+    });
+
+    process.on('uncaughtException', (error) => {
+        console.error('[AntiCrash] Uncaught Exception:', error);
+    });
+
+    process.on('uncaughtExceptionMonitor', (error) => {
+        console.error('[AntiCrash] Uncaught Exception Monitor:', error);
+    });
 };
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */

@@ -1,23 +1,33 @@
+/**
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Bot mention handler
+ */
 
 import { limited } from '../../utils/ratelimiter.js';
+
 const event = 'mention';
+
 export default class Mention {
     constructor() {
         this.name = event;
-        this.execute = async (client, ctx) => {
-            if (limited(ctx.author.id))
-                return void client.emit('blUser', ctx);
-            await ctx.reply({
-                embeds: [
-                    client
-                        .embed()
-                        .desc(`Yo ${ctx.author}, welcome to your ultimate bot experience.\n\n` +
-      `My global prefix is **\`${client.prefix}\`** – stay ahead, stay smooth.\n` +
-      `What’s the move today? Let’s make it iconic.\n\n` +
-      `Hit **\`${client.prefix}help\`** and let’s roll.`),
-                ],
-            });
-        };
     }
+
+    execute = async (client, ctx) => {
+        // Check rate limit
+        if (limited(ctx.author.id)) {
+            return client.emit('blUser', ctx);
+        }
+
+        const prefix = await client.db.prefix.get(ctx.guild?.id) || client.prefix;
+
+        await ctx.reply({
+            embeds: [
+                client.embed().desc(
+                    `Hey ${ctx.author}! I'm **Nerox**, your music companion.\n\n` +
+                    `My prefix here is \`${prefix}\`. Use \`${prefix}help\` to see all commands.`
+                )
+            ],
+        });
+    };
 }
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */

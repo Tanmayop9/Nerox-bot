@@ -5,7 +5,7 @@ export default class Ignore extends Command {
     constructor() {
         super(...arguments);
         this.serveradmin = true; // Only Server Admins can use this command
-        this.userPrems = ['ManageGuild'];
+        this.userPerms = ['ManageGuild'];
         this.aliases = ['ignorechannel', 'igch'];
         this.description = 'Ignore or unignore a channel from using bot commands.';
         this.example = ['ignorechannel add #chat', 'ignorechannel remove #chat', 'ignorechannel list']

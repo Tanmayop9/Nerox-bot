@@ -25,120 +25,162 @@ format(moment);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export class ExtendedClient extends Client {
-  constructor() {
-    super({
-      partials: [
-        Partials.User,
-        Partials.Channel,
-        Partials.Message,
-        Partials.Reaction,
-        Partials.GuildMember,
-        Partials.ThreadMember,
-        Partials.GuildScheduledEvent,
-      ],
-      intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildInvites,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.DirectMessages,
-        GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildMessageReactions,
-      ],
-      failIfNotExists: false,
-      shards: getInfo().SHARD_LIST,
-      shardCount: getInfo().TOTAL_SHARDS,
-      allowedMentions: {
-        repliedUser: false,
-        parse: ["users", "roles"],
-      },
-    });
+    constructor() {
+        super({
+            partials: [
+                Partials.User,
+                Partials.Channel,
+                Partials.Message,
+                Partials.Reaction,
+                Partials.GuildMember,
+                Partials.ThreadMember,
+                Partials.GuildScheduledEvent,
+            ],
+            intents: [
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildInvites,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.MessageContent,
+                GatewayIntentBits.DirectMessages,
+                GatewayIntentBits.GuildVoiceStates,
+                GatewayIntentBits.GuildMessageReactions,
+            ],
+            failIfNotExists: false,
+            shards: getInfo().SHARD_LIST,
+            shardCount: getInfo().TOTAL_SHARDS,
+            allowedMentions: {
+                repliedUser: false,
+                parse: ["users", "roles"],
+            },
+        });
 
-    this.emoji = emoji;
-    this.config = config;
-    this.webhooks = config.webhooks;
-    this.manager = Manager.init(this);
-    this.underMaintenance = false;
-    this.owners = config.owners;
-    this.admins = config.admins;
+        // Core configuration
+        this.emoji = emoji;
+        this.config = config;
+        this.prefix = config.prefix || '&';
+        this.owners = config.owners || [];
+        this.admins = config.admins || [];
+        this.underMaintenance = false;
 
-this.db = {
-  noPrefix: josh("noPrefix"),
-  ticket: josh("ticket"),
-  botmods: josh("botmods"),
-  giveaway: josh("giveaway"),
-  mc: josh("msgCount"),
-  botstaff: josh("botstaff"),
-  liked: josh("liked"),
-  redeemCode: josh("redeemCode"),
-  serverstaff: josh("serverstaff"),
-  prefix: josh("prefix"),
-  ignore: josh("ignore"),
-  bypass: josh("bypass"),
-  blacklist: josh("blacklist"),
-  playlists: josh("playlists"),
-  
-  stats: {
-    songsPlayed: josh("stats/songsPlayed"),  
-    commandsUsed: josh("stats/commandsUsed"),
-    friends: josh("stats/friends"),
-    linkfireStreaks: josh("stats/linkfireStreaks"),
-  },
-  twoFourSeven: josh("twoFourSeven"),
-};
+        // Initialize music manager
+        this.manager = Manager.init(this);
 
-    this.dokdo = null;
-    this.prefix = config.prefix;
-    this.invite = {
-      admin: () =>
-        this.generateInvite({
-          scopes: [OAuth2Scopes.Bot],
-          permissions: ["Administrator"],
-        }),
-      required: () =>
-        this.generateInvite({
-          scopes: [OAuth2Scopes.Bot],
-          permissions: ["Administrator"],
-        }),
-    };
+        // Database collections
+        this.db = {
+            // User management
+            noPrefix: josh("noPrefix"),
+            botmods: josh("botmods"),
+            botstaff: josh("botstaff"),
+            serverstaff: josh("serverstaff"),
+            blacklist: josh("blacklist"),
+            
+            // Server settings
+            prefix: josh("prefix"),
+            ignore: josh("ignore"),
+            
+            // Music features
+            liked: josh("liked"),
+            playlists: josh("playlists"),
+            twoFourSeven: josh("twoFourSeven"),
+            
+            // Premium system
+            premium: josh("premium"),
+            redeemCodes: josh("redeemCodes"),
+            
+            // Statistics
+            stats: {
+                songsPlayed: josh("stats/songsPlayed"),
+                commandsUsed: josh("stats/commandsUsed"),
+            },
+        };
 
-    this.cluster = new ClusterClient(this);
-    this.commands = new Collection();
-    this.categories = readdirSync(resolve(__dirname, "../commands"));
-    this.cooldowns = new Collection();
+        // Dokdo debugger (optional)
+        this.dokdo = null;
 
-    this.connectToGateway = () => (this.login(config.token), this);
+        // Invite generator
+        this.invite = {
+            admin: () => this.generateInvite({
+                scopes: [OAuth2Scopes.Bot],
+                permissions: ["Administrator"],
+            }),
+            required: () => this.generateInvite({
+                scopes: [OAuth2Scopes.Bot],
+                permissions: ["Administrator"],
+            }),
+        };
 
-    this.log = (message, type) => void log(message, type);
-    this.sleep = async (s) => void (await new Promise((resolve) => setTimeout(resolve, s * 1000)));
+        // Cluster client for sharding
+        this.cluster = new ClusterClient(this);
 
-    this.button = () => new ExtendedButtonBuilder();
-    this.embed = (color) => new ExtendedEmbedBuilder(color || "#00ADB5");
+        // Command collections
+        this.commands = new Collection();
+        this.categories = readdirSync(resolve(__dirname, "../commands"));
+        this.cooldowns = new Collection();
 
-    this.formatBytes = (bytes) => {
-      const power = Math.floor(Math.log(bytes) / Math.log(1024));
-      return `${parseFloat((bytes / Math.pow(1024, power)).toFixed(2))} ${
-        ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][power]
-      }`;
-    };
+        // Gateway connection
+        this.connectToGateway = () => {
+            this.login(config.token);
+            return this;
+        };
 
-    this.formatDuration = (duration) =>
-      moment.duration(duration, "milliseconds").format("d[d] h[h] m[m] s[s]", 0, {
-        trim: "all",
-      });
+        // Utility methods
+        this.log = (message, type) => log(message, type);
+        this.sleep = (seconds) => new Promise(resolve => setTimeout(resolve, seconds * 1000));
 
-    this.getPlayer = (ctx) => this.manager.players.get(ctx.guild.id);
+        // Builders
+        this.button = () => new ExtendedButtonBuilder();
+        this.embed = (color) => new ExtendedEmbedBuilder(color || "#2B2D31");
 
-    this.webhooks = Object.fromEntries(
-      Object.entries(config.webhooks).map(([hook, url]) => [
-        hook,
-        new WebhookClient({ url }),
-      ])
-    );
+        // Format bytes to human readable
+        this.formatBytes = (bytes) => {
+            if (bytes === 0) return "0 Bytes";
+            const power = Math.floor(Math.log(bytes) / Math.log(1024));
+            const units = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
+            return `${parseFloat((bytes / Math.pow(1024, power)).toFixed(2))} ${units[power]}`;
+        };
 
-    this.on("debug", (data) => this.log(data));
-    this.on("ready", async () => await readyEvent(this));
-    this.on("messageUpdate", (_, m) => (m.partial ? null : this.emit("messageCreate", m)));
-  }
+        // Format duration
+        this.formatDuration = (duration) => {
+            return moment.duration(duration, "milliseconds").format("d[d] h[h] m[m] s[s]", { trim: "all" }) || "0s";
+        };
+
+        // Get player for guild
+        this.getPlayer = (ctx) => this.manager.players.get(ctx.guild?.id);
+
+        // Initialize webhooks
+        this.initWebhooks();
+
+        // Event listeners
+        this.on("debug", (data) => this.log(data, "debug"));
+        this.on("ready", async () => await readyEvent(this));
+        this.on("messageUpdate", (_, m) => m.partial ? null : this.emit("messageCreate", m));
+    }
+
+    // Initialize webhook clients
+    initWebhooks() {
+        const webhookConfig = this.config.webhooks || {};
+        this.webhooks = {};
+
+        for (const [name, url] of Object.entries(webhookConfig)) {
+            if (url && url.startsWith('https://discord.com/api/webhooks/')) {
+                try {
+                    this.webhooks[name] = new WebhookClient({ url });
+                } catch (e) {
+                    this.log(`Failed to initialize webhook: ${name}`, "error");
+                }
+            }
+        }
+    }
+
+    // Check if user is premium
+    async isPremium(userId) {
+        const data = await this.db.premium.get(userId);
+        return data && data.expiresAt > Date.now();
+    }
+
+    // Check if server is premium
+    async isServerPremium(guildId) {
+        return await this.db.serverstaff.has(guildId);
+    }
 }
