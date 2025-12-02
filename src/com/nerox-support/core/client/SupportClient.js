@@ -247,18 +247,16 @@ export class SupportClient extends Client {
                         expiresAt: expiresAt,
                     });
 
+                    // Also grant noPrefix access
+                    await this.mainDb.noPrefix.set(winnerId, true);
+
                     this.log(
                         `Granted premium to ${winnerId} (expires: ${new Date(expiresAt).toISOString()})`,
                         'success'
                     );
                 } else if (giveaway.rewardType === 'noprefix') {
-                    // Grant no-prefix to winner in main bot's database
-                    await this.mainDb.noPrefix.set(winnerId, {
-                        oderId: `GIVEAWAY-${giveaway.messageId || Date.now()}`,
-                        oderedBy: winnerId,
-                        oderedAt: Date.now(),
-                        reason: 'Giveaway Winner',
-                    });
+                    // Grant no-prefix to winner in main bot's database (simple true value)
+                    await this.mainDb.noPrefix.set(winnerId, true);
 
                     this.log(`Granted no-prefix to ${winnerId}`, 'success');
                 }
