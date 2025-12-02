@@ -1,32 +1,34 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * @description Voice Recognition handler for music commands
+ * @description User-based Voice Recognition handler for music commands
+ * 
+ * This is a user-based system - only the user who enabled voice commands
+ * will have their voice recognized for commands.
  * 
  * Note: Full speech-to-text requires external APIs (Google, Wit.ai, Vosk).
- * This implementation provides the framework - connect your preferred
- * speech recognition service in the processAudio function.
- * 
- * For now, this shows the activation message and can be extended
- * with actual speech recognition when an API is configured.
+ * Connect your preferred speech recognition service in processVoiceCommand.
  */
 
 import { updatePlayerButtons } from '../../functions/updatePlayerButtons.js';
 
-// Store active voice command sessions
-const activeSessions = new Map();
+// Store active voice sessions per user
+const activeUsers = new Map();
 
 // Supported voice commands
 const voiceCommands = {
     play: {
         keywords: ['play', 'baja', 'chalao'],
         hasArgs: true,
-        execute: async (client, guildId, textChannel, args) => {
-            const player = client.manager.players.get(guildId);
+        execute: async (client, userId, session, args) => {
+            const player = client.manager.players.get(session.guildId);
             if (!player || !args) return;
 
+            const textChannel = client.channels.cache.get(session.textId);
+            if (!textChannel) return;
+
             const result = await player.search(args, {
-                requester: { id: 'voice-command', displayName: 'Voice Command' },
+                requester: { id: userId, displayName: 'Voice Command' },
             });
 
             if (!result.tracks.length) {
@@ -49,10 +51,13 @@ const voiceCommands = {
     },
 
     skip: {
-        keywords: ['skip', 'next'],
-        execute: async (client, guildId, textChannel) => {
-            const player = client.manager.players.get(guildId);
+        keywords: ['skip', 'next', 'agla'],
+        execute: async (client, userId, session) => {
+            const player = client.manager.players.get(session.guildId);
             if (!player?.queue?.current) return;
+
+            const textChannel = client.channels.cache.get(session.textId);
+            if (!textChannel) return;
 
             const skipped = player.queue.current;
             await player.shoukaku.stopTrack();
@@ -64,24 +69,31 @@ const voiceCommands = {
     },
 
     stop: {
-        keywords: ['stop', 'band'],
-        execute: async (client, guildId, textChannel) => {
-            const player = client.manager.players.get(guildId);
+        keywords: ['stop', 'band', 'ruko'],
+        execute: async (client, userId, session) => {
+            const player = client.manager.players.get(session.guildId);
             if (!player) return;
+
+            const textChannel = client.channels.cache.get(session.textId);
 
             await player.destroy();
 
-            await textChannel.send({
-                embeds: [client.embed().desc('🎤 Stopped playback.')],
-            });
+            if (textChannel) {
+                await textChannel.send({
+                    embeds: [client.embed().desc('🎤 Stopped playback.')],
+                });
+            }
         },
     },
 
     pause: {
-        keywords: ['pause', 'ruko'],
-        execute: async (client, guildId, textChannel) => {
-            const player = client.manager.players.get(guildId);
+        keywords: ['pause', 'rok'],
+        execute: async (client, userId, session) => {
+            const player = client.manager.players.get(session.guildId);
             if (!player?.playing) return;
+
+            const textChannel = client.channels.cache.get(session.textId);
+            if (!textChannel) return;
 
             player.pause(true);
             await updatePlayerButtons(client, player);
@@ -93,10 +105,13 @@ const voiceCommands = {
     },
 
     resume: {
-        keywords: ['resume', 'chalu'],
-        execute: async (client, guildId, textChannel) => {
-            const player = client.manager.players.get(guildId);
+        keywords: ['resume', 'chalu', 'start'],
+        execute: async (client, userId, session) => {
+            const player = client.manager.players.get(session.guildId);
             if (!player?.paused) return;
+
+            const textChannel = client.channels.cache.get(session.textId);
+            if (!textChannel) return;
 
             player.pause(false);
             await updatePlayerButtons(client, player);
@@ -108,10 +123,13 @@ const voiceCommands = {
     },
 
     autoplay: {
-        keywords: ['autoplay'],
-        execute: async (client, guildId, textChannel) => {
-            const player = client.manager.players.get(guildId);
+        keywords: ['autoplay', 'auto'],
+        execute: async (client, userId, session) => {
+            const player = client.manager.players.get(session.guildId);
             if (!player?.queue?.current) return;
+
+            const textChannel = client.channels.cache.get(session.textId);
+            if (!textChannel) return;
 
             const status = player.data.get('autoplayStatus');
             status ? player.data.delete('autoplayStatus') : player.data.set('autoplayStatus', true);
@@ -126,14 +144,15 @@ const voiceCommands = {
 };
 
 /**
- * Process voice command from transcript
+ * Process voice command from a specific user
+ * @param {Client} client - Discord client
+ * @param {string} oderId - User ID who spoke
+ * @param {string} transcript - Recognized speech text
  */
-export const processVoiceCommand = async (client, guildId, transcript) => {
-    const session = activeSessions.get(guildId);
+export const processVoiceCommand = async (client, userId, transcript) => {
+    // Check if this user has voice commands enabled
+    const session = activeUsers.get(userId);
     if (!session) return false;
-
-    const textChannel = client.channels.cache.get(session.textChannelId);
-    if (!textChannel) return false;
 
     const text = transcript.toLowerCase().trim();
 
@@ -144,7 +163,7 @@ export const processVoiceCommand = async (client, guildId, transcript) => {
                 if (cmd.hasArgs && !args) continue;
 
                 try {
-                    await cmd.execute(client, guildId, textChannel, args);
+                    await cmd.execute(client, userId, session, args);
                     return true;
                 } catch (err) {
                     console.error('[VoiceRecognition] Command error:', err);
@@ -158,75 +177,82 @@ export const processVoiceCommand = async (client, guildId, transcript) => {
 };
 
 /**
- * Start Voice Recognition
+ * Start Voice Recognition for a specific user
  */
 export class StartVoiceRecognition {
     constructor() {
         this.name = 'startVoiceRecognition';
     }
 
-    execute = async (client, player, voiceChannel) => {
-        const guildId = player.guildId;
+    execute = async (client, player, voiceChannel, user) => {
+        const userId = user.id;
 
-        if (activeSessions.has(guildId)) return;
+        if (activeUsers.has(userId)) return;
 
         const textChannel = client.channels.cache.get(player.textId);
         if (!textChannel) return;
 
-        activeSessions.set(guildId, {
-            voiceChannelId: voiceChannel.id,
-            textChannelId: player.textId,
+        // Store user session
+        activeUsers.set(userId, {
+            oderId: userId,
+            userName: user.username,
+            guildId: player.guildId,
+            voiceId: voiceChannel.id,
+            textId: player.textId,
             startedAt: Date.now(),
         });
 
         await textChannel.send({
             embeds: [
                 client.embed().desc(
-                    `🎤 **Voice Commands Active**\n\n` +
-                    `Speak these commands in voice chat:\n` +
+                    `🎤 **Voice Commands Active** for **${user.username}**\n\n` +
+                    `Speak these commands:\n` +
                     `• "play <song>"\n` +
                     `• "skip"\n` +
                     `• "stop"\n` +
                     `• "pause" / "resume"\n` +
                     `• "autoplay"\n\n` +
-                    `_Note: Voice recognition requires speech-to-text API configuration._`
+                    `_Only ${user.username}'s voice will be recognized._`
                 )
             ],
         });
 
-        client.log(`[VoiceRecognition] Activated for guild ${guildId}`, 'info');
+        client.log(`[VoiceRecognition] Started for user ${user.tag}`, 'info');
     };
 }
 
 /**
- * Stop Voice Recognition
+ * Stop Voice Recognition for a specific user
  */
 export class StopVoiceRecognition {
     constructor() {
         this.name = 'stopVoiceRecognition';
     }
 
-    execute = async (client, guildId) => {
-        const session = activeSessions.get(guildId);
+    execute = async (client, userId) => {
+        const session = activeUsers.get(userId);
         if (!session) return;
 
-        activeSessions.delete(guildId);
+        activeUsers.delete(userId);
 
-        const textChannel = client.channels.cache.get(session.textChannelId);
+        const textChannel = client.channels.cache.get(session.textId);
         if (textChannel) {
             await textChannel.send({
-                embeds: [client.embed().desc('🎤 Voice Commands disabled.')],
+                embeds: [client.embed().desc(`�� Voice commands disabled for **${session.userName}**.`)],
             }).catch(() => null);
         }
 
-        client.log(`[VoiceRecognition] Deactivated for guild ${guildId}`, 'info');
+        client.log(`[VoiceRecognition] Stopped for user ${session.userName}`, 'info');
     };
 }
 
-// Check if session is active
-export const isVoiceRecognitionActive = (guildId) => activeSessions.has(guildId);
+// Check if user has voice recognition active
+export const isUserVoiceActive = (userId) => activeUsers.has(userId);
 
-// Get session info
-export const getVoiceSession = (guildId) => activeSessions.get(guildId);
+// Get user's voice session
+export const getUserVoiceSession = (userId) => activeUsers.get(userId);
+
+// Get all active users
+export const getActiveVoiceUsers = () => Array.from(activeUsers.keys());
 
 export default StartVoiceRecognition;
