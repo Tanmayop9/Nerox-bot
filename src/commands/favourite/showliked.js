@@ -17,8 +17,11 @@ export default class ShowLiked extends Command {
                 });
             }
 
-            const chunks = _.chunk(data.map((track, i) => `**${i + 1}.** [${track.title}](${track.uri})`), 10);
-            const pages = chunks.map(chunk => client.embed().desc(chunk.join('\n')));
+            const chunks = _.chunk(
+                data.map((track, i) => `**${i + 1}.** [${track.title}](${track.uri})`),
+                10
+            );
+            const pages = chunks.map((chunk) => client.embed().desc(chunk.join('\n')));
 
             await paginator(ctx, pages);
         };

@@ -28,7 +28,11 @@ export default class Backup extends Command {
             if (!backupChannelId) {
                 return await ctx.reply({
                     embeds: [
-                        client.embed().desc(`${client.emoji.cross} **Error:** Backup channel not configured. Set BACKUP_CHANNEL_ID in environment.`),
+                        client
+                            .embed()
+                            .desc(
+                                `${client.emoji.cross} **Error:** Backup channel not configured. Set BACKUP_CHANNEL_ID in environment.`
+                            ),
                     ],
                 });
             }
@@ -39,9 +43,7 @@ export default class Backup extends Command {
 
             // Initial status message
             const waitEmbed = await ctx.reply({
-                embeds: [
-                    client.embed().desc(`${client.emoji.timer} **Initializing backup process...**`),
-                ],
+                embeds: [client.embed().desc(`${client.emoji.timer} **Initializing backup process...**`)],
             });
 
             // Progress steps
@@ -56,19 +58,20 @@ export default class Backup extends Command {
                 'Applying archive encryption...',
                 `Creating archive: \`${file}\`...`,
                 'Running final validation...',
-                'Preparing for transmission...'
+                'Preparing for transmission...',
             ];
 
             // Show progress updates
             for (const [index, step] of steps.entries()) {
                 await new Promise((r) => setTimeout(r, 1500));
-                const completedSteps = steps.slice(0, index + 1).map(s => `${client.emoji.check} ${s}`).join('\n');
+                const completedSteps = steps
+                    .slice(0, index + 1)
+                    .map((s) => `${client.emoji.check} ${s}`)
+                    .join('\n');
                 const currentStep = steps[index + 1] ? `${client.emoji.timer} **${steps[index + 1]}**` : '';
-                
+
                 await waitEmbed.edit({
-                    embeds: [
-                        client.embed().desc(`${completedSteps}\n${currentStep}`),
-                    ],
+                    embeds: [client.embed().desc(`${completedSteps}\n${currentStep}`)],
                 });
             }
 
@@ -86,22 +89,27 @@ export default class Backup extends Command {
             }
 
             // Send backup file
-            const sent = await targetChannel.send({
-                content: `📦 **Backup Created** — ${moment().tz('Asia/Kolkata').format('MMMM DD, YYYY [at] HH:mm:ss')}`,
-                files: [new AttachmentBuilder(file, { name: file })],
-            }).then(() => true).catch((error) => {
-                console.error('Backup transmission error:', error);
-                return false;
-            });
+            const sent = await targetChannel
+                .send({
+                    content: `📦 **Backup Created** — ${moment().tz('Asia/Kolkata').format('MMMM DD, YYYY [at] HH:mm:ss')}`,
+                    files: [new AttachmentBuilder(file, { name: file })],
+                })
+                .then(() => true)
+                .catch((error) => {
+                    console.error('Backup transmission error:', error);
+                    return false;
+                });
 
             // Final status update
             await waitEmbed.edit({
                 embeds: [
-                    client.embed().desc(
-                        sent
-                            ? `${client.emoji.check} **Backup Complete!**\n\nArchive \`${file}\` has been successfully transmitted to <#${backupChannelId}>.`
-                            : `${client.emoji.cross} **Backup Failed!**\n\nUnable to transmit archive. Check bot permissions and logs.`
-                    ),
+                    client
+                        .embed()
+                        .desc(
+                            sent
+                                ? `${client.emoji.check} **Backup Complete!**\n\nArchive \`${file}\` has been successfully transmitted to <#${backupChannelId}>.`
+                                : `${client.emoji.cross} **Backup Failed!**\n\nUnable to transmit archive. Check bot permissions and logs.`
+                        ),
                 ],
             });
 

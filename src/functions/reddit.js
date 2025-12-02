@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 export const getRandomPost = async (subreddit) => {
     const res = await axios.get(`https://www.reddit.com/r/${subreddit}/random.json`, {
@@ -12,7 +11,8 @@ export const getRandomPost = async (subreddit) => {
             'sec-ch-ua-platform': '"Android"',
             'accept-language': 'en-US,en;q=0.9',
             'sec-ch-ua': '"Not A(Brand";v="99", "Opera GX";v="107", "Chromium";v="121"',
-            cookie: 'rdt=0c689ec2fff32dbec6962352e676b4ad; ' +
+            cookie:
+                'rdt=0c689ec2fff32dbec6962352e676b4ad; ' +
                 'edgebucket=VOWGMAbaJES1bHS7La; ' +
                 'csv=2; ' +
                 'g_state={"i_l":0}; ' +

@@ -10,17 +10,17 @@ export const emoji = {
     error: '`✗`',
     warning: '`!`',
     loading: '`◌`',
-    
+
     // Aliases
     check: '`✓`',
     cross: '`✗`',
     timer: '`◌`',
     warn: '`!`',
-    
+
     // Info
     info: '`›`',
     info1: '`•`',
-    
+
     // Player
     previous: '⏮',
     pause: '⏸',
@@ -30,7 +30,7 @@ export const emoji = {
     autoplay: '∞',
     shuffle: '🔀',
     repeat: '🔁',
-    
+
     // Special
     heart: '♡',
     premium: '★',

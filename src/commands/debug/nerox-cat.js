@@ -16,30 +16,35 @@ export default class JSKCat extends Command {
             if (!fs.existsSync(logPath)) {
                 return ctx.reply({
                     embeds: [
-                        client.embed()
+                        client
+                            .embed()
                             .title(`${client.emoji.info1} File Not Found`)
-                            .desc(`The file \`logs.txt\` does not exist.`)
-                    ]
+                            .desc(`The file \`logs.txt\` does not exist.`),
+                    ],
                 });
             }
 
             const content = fs.readFileSync(logPath, 'utf8');
             const sliced = content.length > 4000 ? content.slice(-4000) : content; // Discord limit
 
-            const embed = client.embed()
+            const embed = client
+                .embed()
                 .title(`${client.emoji.info} logs.txt Content`)
                 .desc(`\`\`\`\n${sliced || 'File is empty.'}\n\`\`\``)
-                .footer({ text: `Requested by ${ctx.author.username}`, iconURL: ctx.author.displayAvatarURL() });
+                .footer({
+                    text: `Requested by ${ctx.author.username}`,
+                    iconURL: ctx.author.displayAvatarURL(),
+                });
 
             await ctx.reply({ embeds: [embed] });
-
         } catch (err) {
             await ctx.reply({
                 embeds: [
-                    client.embed()
+                    client
+                        .embed()
                         .title('❌ Error Reading File')
-                        .desc(`\`\`\`\n${err.message || err}\n\`\`\``)
-                ]
+                        .desc(`\`\`\`\n${err.message || err}\n\`\`\``),
+                ],
             });
         }
     };

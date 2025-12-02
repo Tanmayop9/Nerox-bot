@@ -16,8 +16,8 @@ export default class Like extends Command {
                 });
             }
 
-            const liked = await client.db.liked.get(ctx.author.id) || [];
-            if (liked.some(track => track.uri === current.uri)) {
+            const liked = (await client.db.liked.get(ctx.author.id)) || [];
+            if (liked.some((track) => track.uri === current.uri)) {
                 return ctx.reply({
                     embeds: [client.embed().desc(`${client.emoji.cross} This song is already in your liked list.`)],
                 });

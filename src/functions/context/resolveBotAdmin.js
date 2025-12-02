@@ -8,25 +8,27 @@ export const resolveBotAdmin = async (ctx, command) => {
     const staff = await client.db.botstaff.has(ctx.author.id); // Bot Staff
     const serverStaff = guild ? await client.db.serverstaff.has(guild.id) : false; // Server Staff
     const isIgnored = await client.db.ignore.has(channel.id);
-    
+
     const serverAdmin = member?.permissions.has('Administrator') || false; // Server Admin Check
 
     // If Channel is Ignored
     if (isIgnored) {
-    
         const msg = await ctx.reply({
             content: `${client.emoji.cross} This channel is ignored from using my commands. Use them somewhere else.`,
         });
         setTimeout(() => msg.delete().catch(() => {}), 7000);
         return false;
-        }
-     
+    }
 
     // Owner-Only Command Check
     if (command.owner) {
         if (!owner) {
             await ctx.reply({
-                embeds: [client.embed().desc(`${client.emoji.cross} Only my Owners can use this command. You ain't one, so back off.`)],
+                embeds: [
+                    client
+                        .embed()
+                        .desc(`${client.emoji.cross} Only my Owners can use this command. You ain't one, so back off.`),
+                ],
             });
             return false;
         }
@@ -37,7 +39,11 @@ export const resolveBotAdmin = async (ctx, command) => {
     if (command.admin) {
         if (!admin) {
             await ctx.reply({
-                embeds: [client.embed().desc(`${client.emoji.cross} Only my Admins can use this. Get some real power first.`)],
+                embeds: [
+                    client
+                        .embed()
+                        .desc(`${client.emoji.cross} Only my Admins can use this. Get some real power first.`),
+                ],
             });
             return false;
         }
@@ -48,7 +54,11 @@ export const resolveBotAdmin = async (ctx, command) => {
     if (command.serveradmin) {
         if (!serverAdmin) {
             await ctx.reply({
-                embeds: [client.embed().desc(`${client.emoji.cross} You ain't a Server Admin. Stop flexing and get real perms.`)],
+                embeds: [
+                    client
+                        .embed()
+                        .desc(`${client.emoji.cross} You ain't a Server Admin. Stop flexing and get real perms.`),
+                ],
             });
             return false;
         }
@@ -70,7 +80,11 @@ export const resolveBotAdmin = async (ctx, command) => {
     if (command.staff) {
         if (!staff) {
             await ctx.reply({
-                embeds: [client.embed().desc(`${client.emoji.cross} Premium users only. You? Nah, go touch some grass first.`)],
+                embeds: [
+                    client
+                        .embed()
+                        .desc(`${client.emoji.cross} Premium users only. You? Nah, go touch some grass first.`),
+                ],
             });
             return false;
         }

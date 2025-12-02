@@ -1,4 +1,3 @@
-
 import moment from 'moment';
 import format from 'moment-duration-format';
 format(moment);
@@ -6,9 +5,10 @@ export const progressBar = (current, total, size = 20) => {
     const completedMarker = '━';
     const remainingMarker = '┄';
     const currentPositionMarker = '〇';
-    const formatDuration = (duration) => moment.duration(duration, 'milliseconds').format('m[:]s[:]', 0, {
-        trim: false,
-    });
+    const formatDuration = (duration) =>
+        moment.duration(duration, 'milliseconds').format('m[:]s[:]', 0, {
+            trim: false,
+        });
     if (current >= total) {
         return `${formatDuration(current)} \`${completedMarker.repeat(size - 1)}${currentPositionMarker}\` ${formatDuration(total)}`;
     }

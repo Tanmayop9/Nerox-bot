@@ -1,9 +1,9 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * 
+ *
  */
-import { ActionRowBuilder, StringSelectMenuBuilder, } from 'discord.js';
+import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 import { filter } from '../../utils/filter.js';
 import { filters } from '../../assets/filters.js';
 import { Command } from '../../classes/abstract/command.js';
@@ -21,11 +21,13 @@ export default class Filter extends Command {
                 .setMaxValues(1)
                 .setCustomId('menu')
                 .setPlaceholder('Choose a filter here.');
-            Object.keys(filters).forEach((filter) => menu.addOptions({
-                value: filter,
-                emoji: client.emoji.info,
-                label: filter.charAt(0).toUpperCase() + filter.slice(1),
-            }));
+            Object.keys(filters).forEach((filter) =>
+                menu.addOptions({
+                    value: filter,
+                    emoji: client.emoji.info,
+                    label: filter.charAt(0).toUpperCase() + filter.slice(1),
+                })
+            );
             const reply = await ctx.reply({
                 components: [new ActionRowBuilder().addComponents(menu)],
             });
@@ -56,8 +58,7 @@ export default class Filter extends Command {
                 });
             });
             collector.on('end', async (collected) => {
-                if (collected.size)
-                    return;
+                if (collected.size) return;
                 await reply.edit({
                     embeds: [client.embed().desc(`${client.emoji.warn} Filter selection menu timed out!`)],
                     components: [],

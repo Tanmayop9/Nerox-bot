@@ -1,14 +1,12 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * 
+ *
  */
 export const connect247 = async (client, guildId) => {
-    if (client.getPlayer({ guild: { id: guildId } }))
-        return false;
+    if (client.getPlayer({ guild: { id: guildId } })) return false;
     const guild = client.guilds.cache.get(guildId);
-    if (!guild)
-        return await client.db.twoFourSeven.delete(guildId), false;
+    if (!guild) return await client.db.twoFourSeven.delete(guildId), false;
     const data = await client.db.twoFourSeven.get(guild.id);
     const textChannel = guild.channels.cache.get(data.textId);
     const voiceChannel = guild.channels.cache.get(data.voiceId);
@@ -23,16 +21,18 @@ export const connect247 = async (client, guildId) => {
     });
     await textChannel
         .send({
-        embeds: [
-            client
-                .embed()
-                .desc(`${client.emoji.info} A 24/7 player has been successfully created in <#${voiceChannel.id}> and linked to <#${textChannel.id}>.`),
-        ],
-    })
+            embeds: [
+                client
+                    .embed()
+                    .desc(
+                        `${client.emoji.info} A 24/7 player has been successfully created in <#${voiceChannel.id}> and linked to <#${textChannel.id}>.`
+                    ),
+            ],
+        })
         .then(async (message) => {
-        await client.sleep(5);
-        await message.delete();
-    });
+            await client.sleep(5);
+            await message.delete();
+        });
     return true;
 };
 /**@codeStyle - https://google.github.io/styleguide/tsguide.html */

@@ -12,31 +12,26 @@ export default class InfoRequested {
     }
 
     execute = async (client, ctx, command) => {
-        const prefix = await client.db.prefix.get(ctx.guild?.id) || client.prefix;
-        
-        const aliases = command.aliases?.length 
-            ? command.aliases.join(', ') 
-            : 'None';
-            
-        const usage = command.usage 
-            ? `${prefix}${command.name} ${command.usage}` 
-            : `${prefix}${command.name}`;
+        const prefix = (await client.db.prefix.get(ctx.guild?.id)) || client.prefix;
 
-        const cooldown = command.cooldown 
-            ? `${command.cooldown} seconds` 
-            : 'None';
+        const aliases = command.aliases?.length ? command.aliases.join(', ') : 'None';
+
+        const usage = command.usage ? `${prefix}${command.name} ${command.usage}` : `${prefix}${command.name}`;
+
+        const cooldown = command.cooldown ? `${command.cooldown} seconds` : 'None';
 
         await ctx.reply({
             embeds: [
-                client.embed()
+                client
+                    .embed()
                     .title(`Command: ${command.name}`)
                     .desc(
                         `${command.description || 'No description available.'}\n\n` +
-                        `**Usage:** \`${usage}\`\n` +
-                        `**Aliases:** \`${aliases}\`\n` +
-                        `**Cooldown:** \`${cooldown}\``
+                            `**Usage:** \`${usage}\`\n` +
+                            `**Aliases:** \`${aliases}\`\n` +
+                            `**Cooldown:** \`${cooldown}\``
                     )
-                    .footer({ text: '<required> [optional]' })
+                    .footer({ text: '<required> [optional]' }),
             ],
         });
     };

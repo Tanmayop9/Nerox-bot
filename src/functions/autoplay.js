@@ -1,14 +1,14 @@
-
 export const autoplay = async (client, player) => {
     await player.data
         .get('playEmbed')
         ?.delete()
         .catch(() => null);
     const currentTrack = player.data.get('autoplayFromTrack');
-    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const regex =
+        /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const identifier = currentTrack.realUri?.match(regex)?.[1];
-    const query = identifier ?
-        `https://www.youtube.com/watch?v=${identifier}&list=RD${identifier}`
+    const query = identifier
+        ? `https://www.youtube.com/watch?v=${identifier}&list=RD${identifier}`
         : currentTrack.author;
     const result = await player.search(query, {
         requester: client.user,
@@ -23,8 +23,9 @@ export const autoplay = async (client, player) => {
             embeds: [
                 client
                     .embed()
-                    .desc(`${client.emoji.warn} Autoplay ended.\n` +
-                    `${client.emoji.info} No similar tracks were found.`),
+                    .desc(
+                        `${client.emoji.warn} Autoplay ended.\n` + `${client.emoji.info} No similar tracks were found.`
+                    ),
             ],
         });
         await player.destroy();

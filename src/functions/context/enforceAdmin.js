@@ -1,4 +1,3 @@
-
 export const enforceAdmin = async (ctx) => {
     const { client } = ctx;
 
@@ -11,7 +10,7 @@ export const enforceAdmin = async (ctx) => {
     const me = ctx.guild.members.me;
     const channelPerms = ctx.channel.permissionsFor(me);
 
-    const missing = requiredPerms.filter(perm => !channelPerms.has(perm));
+    const missing = requiredPerms.filter((perm) => !channelPerms.has(perm));
 
     if (missing.length === 0) return true;
 
@@ -19,9 +18,11 @@ export const enforceAdmin = async (ctx) => {
         embeds: [
             client
                 .embed()
-                .desc(`${client.emoji.cross} Seriously? I’m missing some basic permissions here: \`${missing.join(', ')}\`.\n\n` +
-                    `${client.emoji.info} My owner didn’t even bother giving me the right tools. And now? I’m just a glorified spectator. ` +
-                    `Tell them to stop slacking and fix my perms. Chop-chop.`),
+                .desc(
+                    `${client.emoji.cross} Seriously? I’m missing some basic permissions here: \`${missing.join(', ')}\`.\n\n` +
+                        `${client.emoji.info} My owner didn’t even bother giving me the right tools. And now? I’m just a glorified spectator. ` +
+                        `Tell them to stop slacking and fix my perms. Chop-chop.`
+                ),
         ],
     });
 

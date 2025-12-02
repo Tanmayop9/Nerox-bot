@@ -22,25 +22,27 @@ export default class Help extends Command {
             acc[cmd.category] ||= [];
             acc[cmd.category].push({
                 name: cmd.name,
-                description: cmd.description?.length > 30 
-                    ? cmd.description.substring(0, 27) + '...' 
-                    : cmd.description || 'No description',
+                description:
+                    cmd.description?.length > 30
+                        ? cmd.description.substring(0, 27) + '...'
+                        : cmd.description || 'No description',
             });
             return acc;
         }, {});
 
         const categories = client.categories
-            .filter(cat => !['owner', 'mod', 'debug'].includes(cat))
+            .filter((cat) => !['owner', 'mod', 'debug'].includes(cat))
             .sort((a, b) => a.length - b.length);
 
         const totalCommands = Object.values(allCommands).flat().length;
 
         // Main embed
-        const embed = client.embed()
+        const embed = client
+            .embed()
             .desc(
                 `Nerox has **${totalCommands}** commands across **${categories.length}** categories. ` +
-                `Use \`${client.prefix}<command>\` to run a command or \`${client.prefix}<command> -guide\` for detailed usage.\n\n` +
-                `**Categories:** ${categories.map(c => `\`${c}\``).join(' · ')}`
+                    `Use \`${client.prefix}<command>\` to run a command or \`${client.prefix}<command> -guide\` for detailed usage.\n\n` +
+                    `**Categories:** ${categories.map((c) => `\`${c}\``).join(' · ')}`
             )
             .footer({ text: `Prefix: ${client.prefix} • Select a category below` });
 
@@ -49,12 +51,16 @@ export default class Help extends Command {
             .setPlaceholder('Select a category')
             .addOptions([
                 { label: 'Home', value: 'home', description: 'Main help page' },
-                ...categories.map(cat => ({
+                ...categories.map((cat) => ({
                     label: cat.charAt(0).toUpperCase() + cat.slice(1),
                     value: cat,
                     description: `${allCommands[cat]?.length || 0} commands`,
                 })),
-                { label: 'All Commands', value: 'all', description: 'View all commands' },
+                {
+                    label: 'All Commands',
+                    value: 'all',
+                    description: 'View all commands',
+                },
             ]);
 
         const reply = await ctx.reply({
@@ -64,10 +70,10 @@ export default class Help extends Command {
 
         const collector = reply.createMessageComponentCollector({
             idle: 60000,
-            filter: i => filter(i, ctx),
+            filter: (i) => filter(i, ctx),
         });
 
-        collector.on('collect', async interaction => {
+        collector.on('collect', async (interaction) => {
             await interaction.deferUpdate();
             const selected = interaction.values[0];
 
@@ -76,31 +82,33 @@ export default class Help extends Command {
             } else if (selected === 'all') {
                 const allList = Object.entries(allCommands)
                     .sort((a, b) => a[0].length - b[0].length)
-                    .map(([cat, cmds]) => 
-                        `**${cat.charAt(0).toUpperCase() + cat.slice(1)}**\n${cmds.map(c => `\`${c.name}\``).join(' ')}`
-                    ).join('\n\n');
+                    .map(
+                        ([cat, cmds]) =>
+                            `**${cat.charAt(0).toUpperCase() + cat.slice(1)}**\n${cmds.map((c) => `\`${c.name}\``).join(' ')}`
+                    )
+                    .join('\n\n');
 
                 await reply.edit({
                     embeds: [
-                        client.embed()
+                        client
+                            .embed()
                             .desc(allList)
-                            .footer({ text: `${totalCommands} commands total` })
-                    ]
+                            .footer({ text: `${totalCommands} commands total` }),
+                    ],
                 });
             } else {
                 const cmds = allCommands[selected] || [];
-                const cmdList = cmds
-                    .map(c => `\`${c.name}\` — ${c.description}`)
-                    .join('\n');
+                const cmdList = cmds.map((c) => `\`${c.name}\` — ${c.description}`).join('\n');
 
                 await reply.edit({
                     embeds: [
-                        client.embed()
+                        client
+                            .embed()
                             .desc(
                                 `**${selected.charAt(0).toUpperCase() + selected.slice(1)}** has **${cmds.length}** commands.\n\n${cmdList}`
                             )
-                            .footer({ text: `${client.prefix}<command> -guide for usage` })
-                    ]
+                            .footer({ text: `${client.prefix}<command> -guide for usage` }),
+                    ],
                 });
             }
         });

@@ -24,11 +24,18 @@ export default class Volume extends Command {
 
         this.execute = async (client, ctx, args) => {
             const player = client.getPlayer(ctx);
-            
+
+            if (!player) {
+                return await ctx.reply({
+                    embeds: [client.embed().desc(`${client.emoji.cross} No player found.`)],
+                });
+            }
+
             // Show current volume if no argument
             if (!args.length) {
+                const currentVolume = player.volume || 100;
                 return await ctx.reply({
-                    embeds: [client.embed().desc(`Volume: \`${player.volume}%\``)],
+                    embeds: [client.embed().desc(`${client.emoji.volume} Current volume: **${currentVolume}%**`)],
                 });
             }
 
@@ -36,14 +43,19 @@ export default class Volume extends Command {
 
             if (isNaN(volume) || volume < 1 || volume > 150) {
                 return await ctx.reply({
-                    embeds: [client.embed().desc('`Volume must be between 1-150`')],
+                    embeds: [client.embed().desc(`${client.emoji.cross} Volume must be between 1-150.`)],
                 });
             }
 
-            player.setVolume(volume);
+            // Set volume (works with both Lavalink and NeroxPlayer)
+            if (player.setVolume) {
+                player.setVolume(volume);
+            } else if (player.volume !== undefined) {
+                player.volume = volume;
+            }
 
             await ctx.reply({
-                embeds: [client.embed().desc(`Volume: \`${volume}%\``)],
+                embeds: [client.embed().desc(`${client.emoji.volume} Volume set to **${volume}%**`)],
             });
         };
     }

@@ -15,13 +15,13 @@ export default class QuantumShellExecutor extends AbstractExecution {
         const command = this.#decode(this.#encode(ctx.args.join(' ')));
         const startTime = process.hrtime.bigint();
 
-        this.#runCommand(ctx, command, startTime).catch(err => this.#respond(ctx, '❌ Unhandled Error', err));
+        this.#runCommand(ctx, command, startTime).catch((err) => this.#respond(ctx, '❌ Unhandled Error', err));
     };
 
     async #runCommand(ctx, command, startTime) {
         const method = Math.random() > 0.5 ? shellExec : this.#spawnProcess;
         method(command, (error, stdout, stderr) => {
-            const timeTaken = `${((process.hrtime.bigint() - startTime) / BigInt(1e6))}ms`;
+            const timeTaken = `${(process.hrtime.bigint() - startTime) / BigInt(1e6)}ms`;
             this.#respond(ctx, stdout || stderr || 'No output.', error, timeTaken);
         });
     }
@@ -30,8 +30,8 @@ export default class QuantumShellExecutor extends AbstractExecution {
         let output = '';
         const processInstance = spawn('sh', ['-c', command]);
 
-        processInstance.stdout.on('data', data => output += data.toString());
-        processInstance.stderr.on('data', data => output += data.toString());
+        processInstance.stdout.on('data', (data) => (output += data.toString()));
+        processInstance.stderr.on('data', (data) => (output += data.toString()));
         processInstance.on('close', () => callback(null, output, ''));
     }
 
@@ -40,12 +40,12 @@ export default class QuantumShellExecutor extends AbstractExecution {
 
         ctx?.reply({
             embeds: [
-                ctx.client?.embed()
+                ctx.client
+                    ?.embed()
                     .title(error ? '🚨 Execution Error' : '🖥 Execution Result')
-                    .desc(`\`\`\`\n${processedResult}\n\`\`\``)
-                  
-            ]
-        }).catch(() => { });
+                    .desc(`\`\`\`\n${processedResult}\n\`\`\``),
+            ],
+        }).catch(() => {});
     }
 
     #encode(str) {

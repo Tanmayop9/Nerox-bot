@@ -17,17 +17,21 @@ export default class PlayLiked extends Command {
                 });
             }
 
-            const player = client.getPlayer(ctx) || await client.manager.createPlayer({
-                guildId: ctx.guild.id,
-                textId: ctx.channel.id,
-                voiceId: ctx.member.voice.channel.id,
-                shardId: ctx.guild.shardId,
-                deaf: false,
-            });
+            const player =
+                client.getPlayer(ctx) ||
+                (await client.manager.createPlayer({
+                    guildId: ctx.guild.id,
+                    textId: ctx.channel.id,
+                    voiceId: ctx.member.voice.channel.id,
+                    shardId: ctx.guild.shardId,
+                    deaf: false,
+                }));
 
             let added = 0;
             for (const track of data) {
-                const result = await player.search(track.uri, { requester: ctx.author });
+                const result = await player.search(track.uri, {
+                    requester: ctx.author,
+                });
                 if (result.tracks.length) {
                     player.queue.add(result.tracks[0]);
                     added++;

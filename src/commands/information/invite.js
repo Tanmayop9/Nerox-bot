@@ -10,8 +10,10 @@ export default class Invite extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.check} Click one of the buttons to add me.\n` +
-                        `${client.emoji.info} Admin is recommended -> ease of use.`),
+                        .desc(
+                            `${client.emoji.check} Click one of the buttons to add me.\n` +
+                                `${client.emoji.info} Admin is recommended -> ease of use.`
+                        ),
                 ],
                 components: [
                     new ActionRowBuilder().addComponents([

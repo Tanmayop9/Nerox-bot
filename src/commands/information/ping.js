@@ -15,19 +15,21 @@ export default class Ping extends Command {
 
     execute = async (client, ctx) => {
         const start = Date.now();
-        const msg = await ctx.reply({ 
-            embeds: [client.embed().desc('Measuring latency...')] 
+        const msg = await ctx.reply({
+            embeds: [client.embed().desc('Measuring latency...')],
         });
         const roundtrip = Date.now() - start;
         const ws = client.ws.ping;
 
         await msg.edit({
             embeds: [
-                client.embed().desc(
-                    `The WebSocket latency is **${ws}ms** and the message roundtrip took **${roundtrip}ms**. ` +
-                    `${ws < 100 ? 'Connection is excellent!' : ws < 200 ? 'Connection is good.' : 'Connection might be slow.'}`
-                )
-            ]
+                client
+                    .embed()
+                    .desc(
+                        `The WebSocket latency is **${ws}ms** and the message roundtrip took **${roundtrip}ms**. ` +
+                            `${ws < 100 ? 'Connection is excellent!' : ws < 200 ? 'Connection is good.' : 'Connection might be slow.'}`
+                    ),
+            ],
         });
     };
 }

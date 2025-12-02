@@ -24,8 +24,7 @@ export default class RevokePremium extends Command {
         ];
 
         this.execute = async (client, ctx, args) => {
-            const target = ctx.mentions.users?.first() || 
-                await client.users.fetch(args[0]).catch(() => null);
+            const target = ctx.mentions.users?.first() || (await client.users.fetch(args[0]).catch(() => null));
 
             if (!target) {
                 return await ctx.reply({
@@ -44,20 +43,22 @@ export default class RevokePremium extends Command {
             await client.db.premium.delete(target.id);
 
             await ctx.reply({
-                embeds: [
-                    client.embed().desc(`Revoked premium from **${target.tag}**.`)
-                ],
+                embeds: [client.embed().desc(`Revoked premium from **${target.tag}**.`)],
             });
 
             // Notify the user
-            await target.send({
-                embeds: [
-                    client.embed().desc(
-                        `Your Nerox Premium subscription has been revoked. ` +
-                        `Contact support if you believe this is an error.`
-                    )
-                ],
-            }).catch(() => null);
+            await target
+                .send({
+                    embeds: [
+                        client
+                            .embed()
+                            .desc(
+                                `Your Nerox Premium subscription has been revoked. ` +
+                                    `Contact support if you believe this is an error.`
+                            ),
+                    ],
+                })
+                .catch(() => null);
         };
     }
 }

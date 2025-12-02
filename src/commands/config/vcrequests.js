@@ -36,20 +36,22 @@ export default class VCRequests extends Command {
             // Show current status if no args
             if (!toggle) {
                 const status = currentStatus?.enabled ? 'enabled' : 'disabled';
-                
+
                 return await ctx.reply({
                     embeds: [
-                        client.embed().desc(
-                            `**Your Voice Commands** are currently **${status}**.\n\n` +
-                            `When enabled, speak these commands in voice chat:\n` +
-                            `• "play <song>" - Play a song\n` +
-                            `• "skip" - Skip current track\n` +
-                            `• "stop" - Stop playback\n` +
-                            `• "pause" / "resume"\n` +
-                            `• "autoplay" - Toggle autoplay\n\n` +
-                            `Example: Say "play Pal Pal" to play that song.\n\n` +
-                            `Use \`${client.prefix}vcrequests on\` to enable for yourself.`
-                        )
+                        client
+                            .embed()
+                            .desc(
+                                `**Your Voice Commands** are currently **${status}**.\n\n` +
+                                    `When enabled, speak these commands in voice chat:\n` +
+                                    `• "play <song>" - Play a song\n` +
+                                    `• "skip" - Skip current track\n` +
+                                    `• "stop" - Stop playback\n` +
+                                    `• "pause" / "resume"\n` +
+                                    `• "autoplay" - Toggle autoplay\n\n` +
+                                    `Example: Say "play Pal Pal" to play that song.\n\n` +
+                                    `Use \`${client.prefix}vcrequests on\` to enable for yourself.`
+                            ),
                     ],
                 });
             }
@@ -84,16 +86,18 @@ export default class VCRequests extends Command {
 
                 return await ctx.reply({
                     embeds: [
-                        client.embed().desc(
-                            `🎤 Voice commands enabled **for you**.\n\n` +
-                            `Speak in voice chat to control music:\n` +
-                            `• "play <song name>"\n` +
-                            `• "skip"\n` +
-                            `• "stop"\n` +
-                            `• "pause" / "resume"\n` +
-                            `• "autoplay"\n\n` +
-                            `_Only your voice will be recognized._`
-                        )
+                        client
+                            .embed()
+                            .desc(
+                                `🎤 Voice commands enabled **for you**.\n\n` +
+                                    `Speak in voice chat to control music:\n` +
+                                    `• "play <song name>"\n` +
+                                    `• "skip"\n` +
+                                    `• "stop"\n` +
+                                    `• "pause" / "resume"\n` +
+                                    `• "autoplay"\n\n` +
+                                    `_Only your voice will be recognized._`
+                            ),
                     ],
                 });
             }

@@ -30,8 +30,7 @@ export default class GiftPremium extends Command {
         ];
 
         this.execute = async (client, ctx, args) => {
-            const target = ctx.mentions.users?.first() || 
-                await client.users.fetch(args[0]).catch(() => null);
+            const target = ctx.mentions.users?.first() || (await client.users.fetch(args[0]).catch(() => null));
 
             if (!target) {
                 return await ctx.reply({
@@ -48,7 +47,7 @@ export default class GiftPremium extends Command {
             }
 
             // Get current premium status
-            const currentPremium = await client.db.premium.get(target.id) || {};
+            const currentPremium = (await client.db.premium.get(target.id)) || {};
             const currentExpiry = currentPremium.expiresAt || Date.now();
             const baseTime = currentExpiry > Date.now() ? currentExpiry : Date.now();
 
@@ -73,23 +72,29 @@ export default class GiftPremium extends Command {
 
             await ctx.reply({
                 embeds: [
-                    client.embed().desc(
-                        `Gifted **${days} days** of premium to **${target.tag}**.\n\n` +
-                        `Their premium is now active until **${expiryDate}**.`
-                    )
+                    client
+                        .embed()
+                        .desc(
+                            `Gifted **${days} days** of premium to **${target.tag}**.\n\n` +
+                                `Their premium is now active until **${expiryDate}**.`
+                        ),
                 ],
             });
 
             // Notify the user
-            await target.send({
-                embeds: [
-                    client.embed().desc(
-                        `You've been gifted **${days} days** of Nerox Premium!\n\n` +
-                        `Your premium is now active until **${expiryDate}**. ` +
-                        `Enjoy all the premium features!`
-                    )
-                ],
-            }).catch(() => null);
+            await target
+                .send({
+                    embeds: [
+                        client
+                            .embed()
+                            .desc(
+                                `You've been gifted **${days} days** of Nerox Premium!\n\n` +
+                                    `Your premium is now active until **${expiryDate}**. ` +
+                                    `Enjoy all the premium features!`
+                            ),
+                    ],
+                })
+                .catch(() => null);
         };
     }
 }

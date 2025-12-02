@@ -11,11 +11,11 @@ const rateLimiter = new RateLimitManager(10000, 5);
 
 export const limited = (userId) => {
     const bucket = rateLimiter.acquire(userId);
-    
+
     if (bucket.limited) {
         return true;
     }
-    
+
     bucket.consume();
     return false;
 };

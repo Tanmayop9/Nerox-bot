@@ -47,16 +47,18 @@ export default class Seek extends Command {
             }
             const generateEmbed = () => {
                 const _player = client.getPlayer(ctx);
-                if (!player)
-                    return client.embed().desc(`Player not found.`);
-                return client
-                    .embed()
-                    .desc(progressBar(_player.position, _player.queue.current.length, 25));
+                if (!player) return client.embed().desc(`Player not found.`);
+                return client.embed().desc(progressBar(_player.position, _player.queue.current.length, 25));
             };
             const reply = await ctx.reply({
                 embeds: [generateEmbed()],
                 components: [
-                    new ActionRowBuilder().addComponents(client.button().secondary('-30s', '- 30', ``, false), client.button().secondary('-10s', '- 10', ``, false), client.button().secondary('+10s', '+ 10', ``, false), client.button().secondary('+30s', '+ 30', ``, false)),
+                    new ActionRowBuilder().addComponents(
+                        client.button().secondary('-30s', '- 30', ``, false),
+                        client.button().secondary('-10s', '- 10', ``, false),
+                        client.button().secondary('+10s', '+ 10', ``, false),
+                        client.button().secondary('+30s', '+ 30', ``, false)
+                    ),
                 ],
             });
             const collector = reply.createMessageComponentCollector({
@@ -67,22 +69,19 @@ export default class Seek extends Command {
                 await interaction.deferUpdate();
                 let time = 0;
                 const player = client.getPlayer(ctx);
-                if (!player?.queue.current)
-                    return;
+                if (!player?.queue.current) return;
                 const position = player.position;
                 const total = player.queue.current.length;
                 switch (interaction.customId) {
                     case '-30s':
                         time = position - 30000;
-                        if (time < 0)
-                            time = 0;
+                        if (time < 0) time = 0;
                         await player.seek(time);
                         await interaction.message.edit({ embeds: [generateEmbed()] });
                         break;
                     case '-10s':
                         time = position - 10000;
-                        if (time < 0)
-                            time = 0;
+                        if (time < 0) time = 0;
                         await player.seek(time);
                         await interaction.message.edit({ embeds: [generateEmbed()] });
                         break;

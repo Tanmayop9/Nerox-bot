@@ -6,9 +6,10 @@ export const loadCommands = async (client) => {
     let totalCommandCount = 0;
     for (const category of await readdir(resolve(__dirname, '../commands'))) {
         for (const file of await readdir(resolve(__dirname, '../commands', category))) {
-            if (!file.endsWith('.js'))
-                continue;
-            const command = new (await import(pathToFileURL(resolve(__dirname, '../commands', category, file)).href)).default();
+            if (!file.endsWith('.js')) continue;
+            const command = new (
+                await import(pathToFileURL(resolve(__dirname, '../commands', category, file)).href)
+            ).default();
             command.category = category.toLowerCase();
             command.name = file.split('.')[0].toLowerCase();
             command.nsfw = category === 'nsfw' ? true : false;

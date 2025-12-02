@@ -4,7 +4,15 @@
  * @description Backup audio source using @distube/ytdl-core when Lavalink is unavailable
  */
 
-import { createAudioPlayer, createAudioResource, joinVoiceChannel, AudioPlayerStatus, VoiceConnectionStatus, entersState, StreamType } from '@discordjs/voice';
+import {
+    createAudioPlayer,
+    createAudioResource,
+    joinVoiceChannel,
+    AudioPlayerStatus,
+    VoiceConnectionStatus,
+    entersState,
+    StreamType,
+} from '@discordjs/voice';
 import ytdl from '@distube/ytdl-core';
 import ytsr from '@distube/ytsr';
 
@@ -17,7 +25,7 @@ const backupPlayers = new Map();
 export const isLavalinkAvailable = (client) => {
     const nodes = client.manager?.shoukaku?.nodes;
     if (!nodes || nodes.size === 0) return false;
-    
+
     for (const [, node] of nodes) {
         if (node.state === 2) return true;
     }
@@ -32,22 +40,24 @@ export const searchTrack = async (query) => {
         if (ytdl.validateURL(query)) {
             const info = await ytdl.getBasicInfo(query);
             return {
-                tracks: [{
-                    title: info.videoDetails.title,
-                    uri: info.videoDetails.video_url,
-                    duration: parseInt(info.videoDetails.lengthSeconds) * 1000,
-                    thumbnail: info.videoDetails.thumbnails[0]?.url,
-                    author: info.videoDetails.author?.name || 'Unknown',
-                    isBackup: true,
-                }],
+                tracks: [
+                    {
+                        title: info.videoDetails.title,
+                        uri: info.videoDetails.video_url,
+                        duration: parseInt(info.videoDetails.lengthSeconds) * 1000,
+                        thumbnail: info.videoDetails.thumbnails[0]?.url,
+                        author: info.videoDetails.author?.name || 'Unknown',
+                        isBackup: true,
+                    },
+                ],
             };
         }
 
         const results = await ytsr(query, { limit: 5, safeSearch: false });
-        const videos = results.items.filter(i => i.type === 'video');
-        
+        const videos = results.items.filter((i) => i.type === 'video');
+
         return {
-            tracks: videos.map(video => ({
+            tracks: videos.map((video) => ({
                 title: video.name,
                 uri: video.url,
                 duration: parseDuration(video.duration),
@@ -75,7 +85,7 @@ const parseDuration = (duration) => {
  */
 export const createBackupPlayer = async (client, options) => {
     const { guildId, voiceId, textId } = options;
-    
+
     const guild = client.guilds.cache.get(guildId);
     if (!guild) return null;
 
@@ -100,7 +110,10 @@ export const createBackupPlayer = async (client, options) => {
     connection.subscribe(audioPlayer);
 
     const backupPlayer = {
-        guildId, voiceId, textId, connection,
+        guildId,
+        voiceId,
+        textId,
+        connection,
         player: audioPlayer,
         queue: [],
         current: null,
@@ -108,7 +121,9 @@ export const createBackupPlayer = async (client, options) => {
         paused: false,
         data: new Map(),
 
-        addTrack(track) { this.queue.push(track); },
+        addTrack(track) {
+            this.queue.push(track);
+        },
 
         async play() {
             if (this.queue.length === 0) {
@@ -128,7 +143,9 @@ export const createBackupPlayer = async (client, options) => {
                     highWaterMark: 1 << 25,
                 });
 
-                const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
+                const resource = createAudioResource(stream, {
+                    inputType: StreamType.Arbitrary,
+                });
                 this.player.play(resource);
                 return true;
             } catch (error) {
@@ -193,6 +210,9 @@ export const getBackupPlayer = (guildId) => backupPlayers.get(guildId);
 export const isUsingBackup = (guildId) => backupPlayers.has(guildId);
 export const destroyBackupPlayer = (guildId) => {
     const player = backupPlayers.get(guildId);
-    if (player) { player.destroy(); return true; }
+    if (player) {
+        player.destroy();
+        return true;
+    }
     return false;
 };

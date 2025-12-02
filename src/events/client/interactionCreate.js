@@ -39,7 +39,7 @@ export default class InteractionCreate {
                         requester: interaction.user,
                     });
 
-                    const songs = res.tracks?.slice(0, 10).map(track => ({
+                    const songs = res.tracks?.slice(0, 10).map((track) => ({
                         name: track.title.substring(0, 100),
                         value: track.uri,
                     }));

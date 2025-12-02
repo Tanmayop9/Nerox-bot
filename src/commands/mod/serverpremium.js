@@ -63,9 +63,12 @@ export default class ServerPremium extends Command {
 
             const chunks = _.chunk(servers, 10);
             const pages = chunks.map((chunk, i) =>
-                client.embed()
+                client
+                    .embed()
                     .desc(chunk.join('\n'))
-                    .footer({ text: `Page ${i + 1}/${chunks.length} • ${keys.length} servers` })
+                    .footer({
+                        text: `Page ${i + 1}/${chunks.length} • ${keys.length} servers`,
+                    })
             );
 
             return await paginator(ctx, pages);

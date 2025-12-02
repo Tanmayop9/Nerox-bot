@@ -40,7 +40,7 @@ export const paginator = async (ctx, pages, startPage = 0) => {
                 .setCustomId('last')
                 .setEmoji('⏭')
                 .setStyle(ButtonStyle.Secondary)
-                .setDisabled(disabled || currentPage === pages.length - 1),
+                .setDisabled(disabled || currentPage === pages.length - 1)
         );
     };
 

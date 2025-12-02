@@ -17,12 +17,8 @@ const logTypes = {
 export const log = (message, type = 'info') => {
     const config = logTypes[type] || logTypes.info;
     const timestamp = new Date().toLocaleTimeString('en-IN', { hour12: false });
-    
-    console.log(
-        chalk.gray(`[${timestamp}]`),
-        config.color(`[${config.prefix}]`),
-        message
-    );
+
+    console.log(chalk.gray(`[${timestamp}]`), config.color(`[${config.prefix}]`), message);
 };
 
 export default log;

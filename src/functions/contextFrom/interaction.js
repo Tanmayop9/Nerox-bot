@@ -1,11 +1,12 @@
-
-import { Collection, } from 'discord.js';
+import { Collection } from 'discord.js';
 export const createContext = async (client, interaction) => {
-    if (!interaction.user ||
+    if (
+        !interaction.user ||
         !interaction.guild ||
         !interaction.member ||
         !interaction.channel ||
-        interaction.channel.isDMBased())
+        interaction.channel.isDMBased()
+    )
         return;
     const mentions = {
         everyone: false,
@@ -22,39 +23,27 @@ export const createContext = async (client, interaction) => {
                 const member = data.member;
                 mentions.members.set(member.id, member);
             }
-        }
-        else if (data.role) {
+        } else if (data.role) {
             const role = data.role;
             mentions.roles.set(role.id, role);
-            if (role.name === '@everyone')
-                mentions.everyone = true;
-        }
-        else if (data.channel) {
+            if (role.name === '@everyone') mentions.everyone = true;
+        } else if (data.channel) {
             mentions.channels.set(data.channel.id, data.channel);
-        }
-        else if (data.attachment) {
+        } else if (data.attachment) {
             attachments.set(data.attachment.id, data.attachment);
-        }
-        else if (typeof data.value === 'string') {
-            if (data.value.includes('@everyone'))
-                mentions.everyone = true;
+        } else if (typeof data.value === 'string') {
+            if (data.value.includes('@everyone')) mentions.everyone = true;
         }
     }
     const _mentions = {
         everyone: mentions.everyone,
     };
-    if (mentions.roles?.size)
-        _mentions.roles = mentions.roles;
-    if (mentions.users?.size)
-        _mentions.users = mentions.users;
-    if (mentions.members?.size)
-        _mentions.members = mentions.members;
-    if (mentions.channels?.size)
-        _mentions.channels = mentions.channels;
+    if (mentions.roles?.size) _mentions.roles = mentions.roles;
+    if (mentions.users?.size) _mentions.users = mentions.users;
+    if (mentions.members?.size) _mentions.members = mentions.members;
+    if (mentions.channels?.size) _mentions.channels = mentions.channels;
     const _attachments = attachments.size ? attachments : undefined;
-    const content = interaction.options.data
-        .map((data) => data.attachment?.url || `${data.value}`)
-        .join(' ');
+    const content = interaction.options.data.map((data) => data.attachment?.url || `${data.value}`).join(' ');
     const ctx = {
         client: client,
         id: interaction.id,
@@ -82,8 +71,7 @@ export const createContext = async (client, interaction) => {
                 content: `${interaction.member} used the command : \`${interaction.commandName}\``,
             });
             const reaction = await reply.react(emoji);
-            if (content)
-                await reply.reply(content);
+            if (content) await reply.reply(content);
             return reaction;
         },
     };

@@ -5,7 +5,7 @@ export default class Prefix extends Command {
         this.description = 'Set, view or reset the server prefix';
         this.userPerms = ['ManageGuild'];
         this.execute = async (client, ctx, args) => {
-            const currentPrefix = await client.db.prefix.get(ctx.guild.id) || client.config.prefix;
+            const currentPrefix = (await client.db.prefix.get(ctx.guild.id)) || client.config.prefix;
             const input = args[0];
 
             if (!input) {
@@ -25,7 +25,9 @@ export default class Prefix extends Command {
                     embeds: [
                         client
                             .embed()
-                            .desc(`${client.emoji.check} Prefix has been reset to default: \`${client.config.prefix}\``),
+                            .desc(
+                                `${client.emoji.check} Prefix has been reset to default: \`${client.config.prefix}\``
+                            ),
                     ],
                 });
                 return;
@@ -44,11 +46,7 @@ export default class Prefix extends Command {
 
             await client.db.prefix.set(ctx.guild.id, input);
             await ctx.reply({
-                embeds: [
-                    client
-                        .embed()
-                        .desc(`${client.emoji.check} Prefix updated to \`${input}\``),
-                ],
+                embeds: [client.embed().desc(`${client.emoji.check} Prefix updated to \`${input}\``)],
             });
         };
     }

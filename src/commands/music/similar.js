@@ -1,4 +1,4 @@
-import { ActionRowBuilder, StringSelectMenuBuilder, } from 'discord.js';
+import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 import { filter } from '../../utils/filter.js';
 import { Command } from '../../classes/abstract/command.js';
 export default class Similar extends Command {
@@ -11,15 +11,14 @@ export default class Similar extends Command {
             const player = client.getPlayer(ctx);
             const waitEmbed = await ctx.reply({
                 embeds: [
-                    client
-                        .embed()
-                        .desc(`${client.emoji.timer} Please wait while I'm searching for similar songs.`),
+                    client.embed().desc(`${client.emoji.timer} Please wait while I'm searching for similar songs.`),
                 ],
             });
-            const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const regex =
+                /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
             const identifier = player.queue.current.realUri?.match(regex)?.[1];
-            const query = identifier ?
-                `https://www.youtube.com/watch?v=${identifier}&list=RD${identifier}`
+            const query = identifier
+                ? `https://www.youtube.com/watch?v=${identifier}&list=RD${identifier}`
                 : player.queue.current.author;
             const result = await player.search(query, {
                 engine: 'youtube',
@@ -71,12 +70,10 @@ export default class Similar extends Command {
                     embeds: [client.embed().desc(desc.added.join('') + desc.notAdded.join(''))],
                     components: [],
                 });
-                if (!player.playing && !player.paused)
-                    player.play();
+                if (!player.playing && !player.paused) player.play();
             });
             collector.on('end', async (collected) => {
-                if (collected.size)
-                    return;
+                if (collected.size) return;
                 await reply.edit({
                     embeds: [client.embed().desc(`${client.emoji.warn} Track selection menu timed out !`)],
                     components: [],
