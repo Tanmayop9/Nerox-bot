@@ -24,7 +24,7 @@ export const loadEvents = async (client) => {
             // Handle multiple named exports (for voiceRecognition.js)
             for (const [exportName, ExportedClass] of Object.entries(module)) {
                 if (exportName === 'default' || typeof ExportedClass !== 'function') continue;
-                
+
                 try {
                     const instance = new ExportedClass();
                     if (instance.name && typeof instance.execute === 'function') {

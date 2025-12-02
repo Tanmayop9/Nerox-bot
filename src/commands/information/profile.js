@@ -1,7 +1,7 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * 
+ *
  */
 import { paginator } from '../../utils/paginator.js';
 import { Command } from '../../classes/abstract/command.js';
@@ -39,20 +39,26 @@ export default class Profile extends Command {
             };
             Object.entries(challenges.commands).forEach(([key, { count }]) => {
                 const achievement = key.charAt(0).toUpperCase() + key.slice(1);
-                achievements.commands.push(commandsUsed >= count ?
-                    `${client.emoji.check} **${achievement} :** Complete ( ${count} / ${count} )`
-                    : `${client.emoji.info} **${achievement} :** Progress ( ${commandsUsed} / ${count} )`);
+                achievements.commands.push(
+                    commandsUsed >= count
+                        ? `${client.emoji.check} **${achievement} :** Complete ( ${count} / ${count} )`
+                        : `${client.emoji.info} **${achievement} :** Progress ( ${commandsUsed} / ${count} )`
+                );
             });
             Object.entries(challenges.songsPlayed).forEach(([key, { count }]) => {
                 const achievement = key.charAt(0).toUpperCase() + key.slice(1);
-                achievements.songs.push(songsPlayed >= count ?
-                    `${client.emoji.check} **${achievement} :** Complete ( ${count} / ${count} )`
-                    : `${client.emoji.info} **${achievement} :** Progress ( ${songsPlayed} / ${count} )`);
+                achievements.songs.push(
+                    songsPlayed >= count
+                        ? `${client.emoji.check} **${achievement} :** Complete ( ${count} / ${count} )`
+                        : `${client.emoji.info} **${achievement} :** Progress ( ${songsPlayed} / ${count} )`
+                );
             });
             const badges = [];
-            if (client.owners.includes(ctx.author.id) ||
+            if (
+                client.owners.includes(ctx.author.id) ||
                 client.admins.includes(ctx.author.id) ||
-                (await client.db.noPrefix.has(ctx.author.id)))
+                (await client.db.noPrefix.has(ctx.author.id))
+            )
                 badges.push(`${client.emoji.check} **No Prefix** (Pay to get it)`);
             if (ctx.author.id === '1056087251068649522')
                 badges.push(`${client.emoji.check} **Developer** (Only for me)`);
@@ -62,31 +68,42 @@ export default class Profile extends Command {
                 badges.push(`${client.emoji.check} **Owner** (Only for bot owners)`);
             for (const [key, value] of Object.entries(challenges.commands))
                 if (commandsUsed >= value.count)
-                    badges.push(`${value.emoji} **${key[0].toUpperCase() + key.slice(1)}** (Use any command/s ${value.count} times)`);
+                    badges.push(
+                        `${value.emoji} **${key[0].toUpperCase() + key.slice(1)}** (Use any command/s ${value.count} times)`
+                    );
             for (const [key, value] of Object.entries(challenges.songsPlayed))
                 if (songsPlayed >= value.count)
-                    badges.push(`${value.emoji} **${key[0].toUpperCase() + key.slice(1)}** (Listen to any song/s ${value.count} times)`);
+                    badges.push(
+                        `${value.emoji} **${key[0].toUpperCase() + key.slice(1)}** (Listen to any song/s ${value.count} times)`
+                    );
             const achievementsEmbed = client
                 .embed()
                 .setAuthor({
-                name: ctx.author.username,
-                iconURL: ctx.author.displayAvatarURL(),
-            })
-                .desc(Object.entries(achievements)
-                .map(([key, value]) => `${client.emoji.check} **${key[0].toUpperCase() + key.slice(1)} :**\n\n` +
-                `${value.join('\n')}`)
-                .join('\n\n'));
+                    name: ctx.author.username,
+                    iconURL: ctx.author.displayAvatarURL(),
+                })
+                .desc(
+                    Object.entries(achievements)
+                        .map(
+                            ([key, value]) =>
+                                `${client.emoji.check} **${key[0].toUpperCase() + key.slice(1)} :**\n\n` +
+                                `${value.join('\n')}`
+                        )
+                        .join('\n\n')
+                );
             const badgesEmbed = client
                 .embed()
                 .setAuthor({
-                name: ctx.author.username,
-                iconURL: ctx.author.displayAvatarURL(),
-            })
-                .desc(badges.length ?
-                badges.join('\n')
-                : `${client.emoji.warn} **Oops ! You don't have any badges.**\n` +
-                    `${client.emoji.info} Scroll to the next page to view your completed achievements and progress of incomplete ones.\n` +
-                    `${client.emoji.info} You can complete achievements and collect badges that will be displayed on this page.`);
+                    name: ctx.author.username,
+                    iconURL: ctx.author.displayAvatarURL(),
+                })
+                .desc(
+                    badges.length
+                        ? badges.join('\n')
+                        : `${client.emoji.warn} **Oops ! You don't have any badges.**\n` +
+                              `${client.emoji.info} Scroll to the next page to view your completed achievements and progress of incomplete ones.\n` +
+                              `${client.emoji.info} You can complete achievements and collect badges that will be displayed on this page.`
+                );
             await paginator(ctx, [badgesEmbed, achievementsEmbed]);
         };
     }

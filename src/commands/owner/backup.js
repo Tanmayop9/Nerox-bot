@@ -1,7 +1,7 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * 
+ *
  */
 import moment from 'moment-timezone';
 import { unlink } from 'fs/promises';
@@ -27,33 +27,33 @@ export default class Backup extends Command {
 
             // Initial message
             const waitEmbed = await ctx.reply({
-                embeds: [
-                    client.embed().desc(`${client.emoji.timer} **Booting up the backup process...**`),
-                ],
+                embeds: [client.embed().desc(`${client.emoji.timer} **Booting up the backup process...**`)],
             });
 
             // Suspenseful steps
             const steps = [
-                "Engaging core systems...",
-                "Decrypting necessary files...",
-                "Analyzing command structures...",
-                "Scanning for inconsistencies...",
-                "Neutralizing potential conflicts...",
-                "Optimizing storage pathways...",
-                "Compressing data streams...",
-                "Finalizing encryption layers...",
+                'Engaging core systems...',
+                'Decrypting necessary files...',
+                'Analyzing command structures...',
+                'Scanning for inconsistencies...',
+                'Neutralizing potential conflicts...',
+                'Optimizing storage pathways...',
+                'Compressing data streams...',
+                'Finalizing encryption layers...',
                 `Backup sequence initialized: Crafting \`${file}\`...`,
-                "Executing final validation checks...",
-                "All systems green. Preparing for dispatch..."
+                'Executing final validation checks...',
+                'All systems green. Preparing for dispatch...',
             ];
 
             for (const [index, step] of steps.entries()) {
                 await new Promise((r) => setTimeout(r, 2000)); // Small delay for suspense
                 await waitEmbed.edit({
                     embeds: [
-                        client.embed().desc(
-                            `${client.emoji.check} ${steps.slice(0, index + 1).join('\n')}\n${client.emoji.timer} **${steps[index + 1] || "Engaging transmission protocols..." }**`
-                        ),
+                        client
+                            .embed()
+                            .desc(
+                                `${client.emoji.check} ${steps.slice(0, index + 1).join('\n')}\n${client.emoji.timer} **${steps[index + 1] || 'Engaging transmission protocols...'}**`
+                            ),
                     ],
                 });
             }
@@ -72,10 +72,13 @@ export default class Backup extends Command {
             // Final edit
             await waitEmbed.edit({
                 embeds: [
-                    client.embed().desc(sent
-                        ? `${client.emoji.check} **Mission success!** \`${file}\` has been secured and dispatched.`
-                        : `${client.emoji.cross} **Mission failed!** Unable to transmit \`${file}\`. Consult the logs for details.`
-                    ),
+                    client
+                        .embed()
+                        .desc(
+                            sent
+                                ? `${client.emoji.check} **Mission success!** \`${file}\` has been secured and dispatched.`
+                                : `${client.emoji.cross} **Mission failed!** Unable to transmit \`${file}\`. Consult the logs for details.`
+                        ),
                 ],
             });
 

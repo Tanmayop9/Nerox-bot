@@ -23,11 +23,12 @@ export default class CodeStats extends Command {
 
             const stats = await getCodeStats();
 
-            const mainEmbed = client.embed()
+            const mainEmbed = client
+                .embed()
                 .desc(
                     `The Nerox codebase consists of **${stats.files}** files across **${stats.directories}** directories. ` +
-                    `There are **${stats.lines.toLocaleString()}** lines of code with **${stats.characters.toLocaleString()}** characters. ` +
-                    `The project structure includes **${stats.whitespaces.toLocaleString()}** whitespace characters for formatting.`
+                        `There are **${stats.lines.toLocaleString()}** lines of code with **${stats.characters.toLocaleString()}** characters. ` +
+                        `The project structure includes **${stats.whitespaces.toLocaleString()}** whitespace characters for formatting.`
                 )
                 .footer({ text: 'Nerox v4.0.0 Codebase' });
 
@@ -37,9 +38,12 @@ export default class CodeStats extends Command {
             const treeChunks = _.chunk(stats.tree, 25);
             treeChunks.forEach((chunk, i) => {
                 embeds.push(
-                    client.embed()
+                    client
+                        .embed()
                         .desc(`\`\`\`\n${chunk.join('\n')}\n\`\`\``)
-                        .footer({ text: `File Tree • Page ${i + 2}/${treeChunks.length + 1}` })
+                        .footer({
+                            text: `File Tree • Page ${i + 2}/${treeChunks.length + 1}`,
+                        })
                 );
             });
 

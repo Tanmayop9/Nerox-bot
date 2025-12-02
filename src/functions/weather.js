@@ -1,18 +1,20 @@
-
 import axios from 'axios';
 import xml2JS from 'xml2js';
 import qs from 'querystring';
-const xmlParser = new xml2JS.Parser({ charkey: 'C$', attrkey: 'A$', explicitArray: true });
+const xmlParser = new xml2JS.Parser({
+    charkey: 'C$',
+    attrkey: 'A$',
+    explicitArray: true,
+});
 export const getWeather = async (location) => {
-    if (!location.length)
-        return;
+    if (!location.length) return;
     const res = await axios
-        .get(`http://weather.service.msn.com/find.aspx?src=outlook&weadegreetype=C&culture=en-us&weasearchstr=${qs.escape(location)}`)
+        .get(
+            `http://weather.service.msn.com/find.aspx?src=outlook&weadegreetype=C&culture=en-us&weasearchstr=${qs.escape(location)}`
+        )
         .catch(() => undefined);
-    if (!res)
-        return;
-    if (res.data.includes('Weather-location lat/lon not found'))
-        return;
+    if (!res) return;
+    if (res.data.includes('Weather-location lat/lon not found')) return;
     const data = await new Promise((resolve) => xmlParser.parseString(res.data, (error, result) => resolve(result)));
     return {
         weather: data.weatherdata.weather[0].current[0].A$.skytext,

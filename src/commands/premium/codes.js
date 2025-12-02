@@ -26,7 +26,7 @@ export default class ListCodes extends Command {
 
         this.execute = async (client, ctx, args) => {
             const filterType = args[0]?.toLowerCase();
-            const allCodes = await client.db.redeemCodes.entries || [];
+            const allCodes = (await client.db.redeemCodes.entries) || [];
 
             if (!allCodes.length) {
                 return await ctx.reply({
@@ -41,8 +41,8 @@ export default class ListCodes extends Command {
             } else if (filterType === 'used') {
                 filteredCodes = allCodes.filter(([_, data]) => data.usedBy);
             } else if (filterType === 'expired') {
-                filteredCodes = allCodes.filter(([_, data]) => 
-                    data.expiresAt && Date.now() > data.expiresAt && !data.usedBy
+                filteredCodes = allCodes.filter(
+                    ([_, data]) => data.expiresAt && Date.now() > data.expiresAt && !data.usedBy
                 );
             }
 
@@ -53,15 +53,18 @@ export default class ListCodes extends Command {
             }
 
             const codeEntries = filteredCodes.map(([code, data]) => {
-                const status = data.usedBy ? '✓ Used' : (data.expiresAt < Date.now() ? '✗ Expired' : '○ Active');
+                const status = data.usedBy ? '✓ Used' : data.expiresAt < Date.now() ? '✗ Expired' : '○ Active';
                 return `\`${code}\` — ${data.duration}d (${data.plan}) — ${status}`;
             });
 
             const chunks = _.chunk(codeEntries, 10);
             const pages = chunks.map((chunk, i) =>
-                client.embed()
+                client
+                    .embed()
                     .desc(chunk.join('\n'))
-                    .footer({ text: `Page ${i + 1}/${chunks.length} • ${filteredCodes.length} codes` })
+                    .footer({
+                        text: `Page ${i + 1}/${chunks.length} • ${filteredCodes.length} codes`,
+                    })
             );
 
             await paginator(ctx, pages);

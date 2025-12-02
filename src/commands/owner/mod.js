@@ -1,7 +1,7 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * 
+ *
  */
 import _ from 'lodash';
 import { paginator } from '../../utils/paginator.js';
@@ -13,7 +13,7 @@ export default class ModManage extends Command {
         this.admin = true; // Only Admins & Owners can use
         this.aliases = ['mod'];
         this.description = 'Add / remove bot moderators';
-        this.example = [`mod add @ifollowracism`, 'mod remove @ifollowracism', 'mod list']
+        this.example = [`mod add @ifollowracism`, 'mod remove @ifollowracism', 'mod list'];
         this.options = [
             {
                 name: 'action',
@@ -33,7 +33,7 @@ export default class ModManage extends Command {
                 description: 'User to add / remove as mod',
             },
         ];
-        
+
         this.execute = async (client, ctx, args) => {
             if (!['add', 'remove', 'list'].includes(args[0]?.toLowerCase())) {
                 ctx.reply({
@@ -46,33 +46,32 @@ export default class ModManage extends Command {
                 const keys = await ctx.client.db.botmods.keys;
                 if (!keys.length) {
                     ctx.reply({
-                        embeds: [
-                            client
-                                .embed()
-                                .desc(`${client.emoji.cross} No moderators found.`),
-                        ],
+                        embeds: [client.embed().desc(`${client.emoji.cross} No moderators found.`)],
                     });
                     return;
                 }
                 const users = await Promise.all(
-                    keys.map(async (user) => await client.users.fetch(user).catch(async () => {
-                        await client.db.botmods.delete(user);
-                    }))
+                    keys.map(
+                        async (user) =>
+                            await client.users.fetch(user).catch(async () => {
+                                await client.db.botmods.delete(user);
+                            })
+                    )
                 );
                 const modUsers = users
                     .filter((user) => user)
                     .map((user, index) => `${index + 1} **${user?.tag}** \`[${user?.id}]\``);
                 const chunked = _.chunk(modUsers, 10);
-                const embeds = chunked.map(chunk => 
+                const embeds = chunked.map((chunk) =>
                     client.embed().setTitle(`${client.emoji.check} Bot Moderators`).desc(chunk.join('\n'))
                 );
                 await paginator(ctx, embeds);
                 return;
             }
 
-            const target = ctx.mentions.users?.first()?.id ?
-                ctx.mentions.users?.first()
-                : await client.users.fetch(args[1]).catch(() => { });
+            const target = ctx.mentions.users?.first()?.id
+                ? ctx.mentions.users?.first()
+                : await client.users.fetch(args[1]).catch(() => {});
             if (!target) {
                 ctx.reply({
                     embeds: [client.embed().desc(`${client.emoji.cross} Please specify a valid user.`)],
@@ -92,7 +91,9 @@ export default class ModManage extends Command {
                     await ctx.client.db.botmods.set(target.id, true);
                     await ctx.reply({
                         embeds: [
-                            client.embed().desc(`${client.emoji.check} Successfully added \`${target.tag}\` as a bot moderator.`),
+                            client
+                                .embed()
+                                .desc(`${client.emoji.check} Successfully added \`${target.tag}\` as a bot moderator.`),
                         ],
                     });
                     break;
@@ -106,7 +107,11 @@ export default class ModManage extends Command {
                     await ctx.client.db.botmods.delete(target.id);
                     await ctx.reply({
                         embeds: [
-                            client.embed().desc(`${client.emoji.check} Successfully removed \`${target.tag}\` from bot moderators.`),
+                            client
+                                .embed()
+                                .desc(
+                                    `${client.emoji.check} Successfully removed \`${target.tag}\` from bot moderators.`
+                                ),
                         ],
                     });
                     break;

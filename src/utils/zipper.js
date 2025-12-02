@@ -1,4 +1,3 @@
-
 import { createWriteStream } from 'node:fs';
 import archiver from 'archiver';
 import { readdir, stat, unlink, access } from 'node:fs/promises';
@@ -10,9 +9,11 @@ const excludesNormalized = excludes.map((element) => normalize(element));
 const ignorableExtensionsSet = new Set(ignorableExtensions.map((ext) => ext.toLowerCase()));
 const shouldExclude = (filePath) => {
     const relativePath = relative(resolvedDirectoryPath, filePath);
-    return (ignorableExtensionsSet.has(extname(filePath).toLowerCase()) ||
+    return (
+        ignorableExtensionsSet.has(extname(filePath).toLowerCase()) ||
         excludesNormalized.includes(relativePath) ||
-        basename(relativePath).startsWith('.'));
+        basename(relativePath).startsWith('.')
+    );
 };
 const traverseDirectoryTree = async (currentPath, archive) => {
     for (const entry of await readdir(currentPath)) {
@@ -22,8 +23,7 @@ const traverseDirectoryTree = async (currentPath, archive) => {
             archive.file(elementPath, {
                 name: relative(resolvedDirectoryPath, elementPath),
             });
-        }
-        else if (element.isDirectory() && !shouldExclude(elementPath)) {
+        } else if (element.isDirectory() && !shouldExclude(elementPath)) {
             await traverseDirectoryTree(elementPath, archive);
         }
     }

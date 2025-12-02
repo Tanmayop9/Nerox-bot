@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 export const randomNekoImage = async (endpoint) => {
     return await axios

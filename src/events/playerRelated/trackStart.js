@@ -16,38 +16,47 @@ export default class PlayerStart {
     }
 
     async execute(client, player, track) {
-        if (!track.title || !player.textId) return;
+        if (!track?.title || !player?.textId) return;
 
         player.data.set('autoplayFromTrack', track);
+
         const channel = client.channels.cache.get(player.textId);
         if (!channel?.isTextBased() || !('send' in channel)) return;
 
         const requesterId = track.requester?.id || 'unknown';
-        const liked = (await client.db.liked.get(requesterId)) || [];
-        const isLiked = liked.some(t => t.uri === track.uri);
+        const liked = (await client.db.liked.get(requesterId).catch(() => [])) || [];
+        const isLiked = liked.some((t) => t.uri === track.uri);
 
-        // Send now playing embed with controls
-        const playEmbed = await channel.send({
-            embeds: [generatePlayEmbed(client, player)],
-            components: [
-                new ActionRowBuilder().addComponents([
-                    client.button().secondary(`playEmbedButton_${player.guildId}_prev`, '', client.emoji.previous),
-                    client.button().secondary(`playEmbedButton_${player.guildId}_pause`, '', client.emoji.pause),
-                    client.button().secondary(`playEmbedButton_${player.guildId}_next`, '', client.emoji.next),
-                    client.button().secondary(`playEmbedButton_${player.guildId}_stop`, '', client.emoji.stop),
-                ]),
-                new ActionRowBuilder().addComponents([
-                    client.button()?.[player?.data.get('autoplayStatus') ? 'success' : 'secondary'](
-                        `playEmbedButton_${player.guildId}_autoplay`, '', client.emoji.autoplay
-                    ),
-                    client.button()?.[isLiked ? 'success' : 'secondary'](
-                        `playEmbedButton_${player.guildId}_like`, '', client.emoji.heart
-                    ),
-                ]),
-            ],
-        });
+        try {
+            // Send now playing embed with controls
+            const playEmbed = await channel.send({
+                embeds: [generatePlayEmbed(client, player)],
+                components: [
+                    new ActionRowBuilder().addComponents([
+                        client.button().secondary(`playEmbedButton_${player.guildId}_prev`, '', client.emoji.previous),
+                        client.button().secondary(`playEmbedButton_${player.guildId}_pause`, '', client.emoji.pause),
+                        client.button().secondary(`playEmbedButton_${player.guildId}_next`, '', client.emoji.next),
+                        client.button().secondary(`playEmbedButton_${player.guildId}_stop`, '', client.emoji.stop),
+                    ]),
+                    new ActionRowBuilder().addComponents([
+                        client
+                            .button()
+                            [
+                                player.data?.get('autoplayStatus') ? 'success' : 'secondary'
+                            ](`playEmbedButton_${player.guildId}_autoplay`, '', client.emoji.autoplay),
+                        client
+                            .button()
+                            [
+                                isLiked ? 'success' : 'secondary'
+                            ](`playEmbedButton_${player.guildId}_like`, '', client.emoji.heart),
+                    ]),
+                ],
+            });
 
-        player.data.set('playEmbed', playEmbed);
+            player.data.set('playEmbed', playEmbed);
+        } catch (err) {
+            client.log(`Failed to send now playing embed: ${err.message}`, 'error');
+        }
 
         // Update statistics
         const date = moment().tz('Asia/Kolkata').format('DD-MM-YYYY');
@@ -67,21 +76,25 @@ export default class PlayerStart {
                 client.db.stats.songsPlayed.set(player.guildId, (guildCount ?? 0) + 1),
             ]);
         } catch (err) {
-            console.error('Error updating song stats:', err);
+            client.log(`Error updating song stats: ${err.message}`, 'error');
         }
 
         // Log to webhook
         if (client.webhooks?.playerLogs) {
-            await client.webhooks.playerLogs.send({
-                username: 'Nerox Player',
-                avatarURL: client.user?.displayAvatarURL(),
-                embeds: [
-                    client.embed().desc(
-                        `Now playing **${track.title.substring(0, 40)}** in **${client.guilds.cache.get(player.guildId)?.name?.substring(0, 25) || 'Unknown'}** ` +
-                        `requested by **${track.requester?.tag || 'Unknown'}**.`
-                    ),
-                ],
-            }).catch(() => null);
+            await client.webhooks.playerLogs
+                .send({
+                    username: 'Nerox Player',
+                    avatarURL: client.user?.displayAvatarURL(),
+                    embeds: [
+                        client
+                            .embed()
+                            .desc(
+                                `Now playing **${(track.title || 'Unknown').substring(0, 40)}** in **${client.guilds.cache.get(player.guildId)?.name?.substring(0, 25) || 'Unknown'}** ` +
+                                    `requested by **${track.requester?.tag || track.requester?.username || 'Unknown'}**.`
+                            ),
+                    ],
+                })
+                .catch(() => null);
         }
     }
 }

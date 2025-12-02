@@ -25,10 +25,12 @@ export default class Redeem extends Command {
             if (!args.length) {
                 return await ctx.reply({
                     embeds: [
-                        client.embed().desc(
-                            `To redeem a premium code, use \`${client.prefix}redeem <code>\`. ` +
-                            `Premium codes can be obtained from giveaways or by contacting support.`
-                        )
+                        client
+                            .embed()
+                            .desc(
+                                `To redeem a premium code, use \`${client.prefix}redeem <code>\`. ` +
+                                    `Premium codes can be obtained from giveaways or by contacting support.`
+                            ),
                     ],
                 });
             }
@@ -61,7 +63,7 @@ export default class Redeem extends Command {
             }
 
             // Get current premium status
-            const currentPremium = await client.db.premium.get(userId) || {};
+            const currentPremium = (await client.db.premium.get(userId)) || {};
             const currentExpiry = currentPremium.expiresAt || Date.now();
             const baseTime = currentExpiry > Date.now() ? currentExpiry : Date.now();
 
@@ -92,11 +94,13 @@ export default class Redeem extends Command {
 
             await ctx.reply({
                 embeds: [
-                    client.embed().desc(
-                        `Successfully redeemed **${codeData.duration} days** of premium!\n\n` +
-                        `Your premium is now active until **${expiryDate}**. ` +
-                        `Enjoy unlimited access to all premium features.`
-                    )
+                    client
+                        .embed()
+                        .desc(
+                            `Successfully redeemed **${codeData.duration} days** of premium!\n\n` +
+                                `Your premium is now active until **${expiryDate}**. ` +
+                                `Enjoy unlimited access to all premium features.`
+                        ),
                 ],
             });
         };

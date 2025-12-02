@@ -25,7 +25,9 @@ export class NeroxTrack {
 
     _extractIdentifier(uri) {
         if (!uri) return null;
-        const ytMatch = uri.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
+        const ytMatch = uri.match(
+            /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/
+        );
         if (ytMatch) return ytMatch[1];
         return uri.split('/').pop()?.split('?')[0] || null;
     }

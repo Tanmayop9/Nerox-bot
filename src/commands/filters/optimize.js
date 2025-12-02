@@ -1,7 +1,7 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * 
+ *
  */
 import { Command } from '../../classes/abstract/command.js';
 export default class Optimize extends Command {
@@ -16,8 +16,10 @@ export default class Optimize extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.timer} Please wait while I adjust VC parameters appropriately ` +
-                        `so that people with a slower network can still enjoy.`),
+                        .desc(
+                            `${client.emoji.timer} Please wait while I adjust VC parameters appropriately ` +
+                                `so that people with a slower network can still enjoy.`
+                        ),
                 ],
             });
             const bitrate = 8000;
@@ -30,9 +32,11 @@ export default class Optimize extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.check} Hope this helps.\n\n` +
-                        `${client.emoji.info} Set voice channel bitrate to \`${bitrate / 1000}kbps\`.\n` +
-                        `${client.emoji.info} Set voice channel region to \`${rtcRegion}\`.`),
+                        .desc(
+                            `${client.emoji.check} Hope this helps.\n\n` +
+                                `${client.emoji.info} Set voice channel bitrate to \`${bitrate / 1000}kbps\`.\n` +
+                                `${client.emoji.info} Set voice channel region to \`${rtcRegion}\`.`
+                        ),
                 ],
             });
         };

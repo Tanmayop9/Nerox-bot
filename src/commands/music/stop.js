@@ -11,23 +11,42 @@ export default class Stop extends Command {
         super(...arguments);
         this.playing = true;
         this.inSameVC = true;
-        this.aliases = ['dc', 'disconnect'];
-        this.description = 'Stop playback and disconnect';
+        this.aliases = ['end'];
+        this.description = 'Stop playback and clear the queue';
 
         this.execute = async (client, ctx) => {
             const player = client.getPlayer(ctx);
-            const trackCount = (player?.queue?.length || 0) + 1;
-            
-            await ctx.guild.members.me.voice.disconnect();
+
+            if (!player) {
+                return await ctx.reply({
+                    embeds: [client.embed().desc(`${client.emoji.cross} No player found.`)],
+                });
+            }
+
+            const trackCount = (player.queue?.length || 0) + (player.queue?.current ? 1 : 0);
+
+            // Stop the player
+            if (player.stop) {
+                player.stop();
+            } else if (player.destroy) {
+                await player.destroy();
+            }
+
+            // Disconnect from voice
+            await ctx.guild.members.me?.voice?.disconnect().catch(() => null);
 
             const has247 = await client.db?.twoFourSeven.has(ctx.guild.id);
 
             await ctx.reply({
                 embeds: [
-                    client.embed().desc(
-                        `Stopped playback and cleared **${trackCount}** track${trackCount > 1 ? 's' : ''} from the queue.` +
-                        (has247 ? ' 24/7 mode is enabled, disable it to prevent auto-rejoin.' : '')
-                    )
+                    client
+                        .embed()
+                        .desc(
+                            `${client.emoji.check} Stopped playback and cleared **${trackCount}** track${trackCount !== 1 ? 's' : ''}.` +
+                                (has247
+                                    ? `\n${client.emoji.info} 24/7 mode is enabled, disable it to prevent auto-rejoin.`
+                                    : '')
+                        ),
                 ],
             });
         };

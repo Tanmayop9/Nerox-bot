@@ -39,22 +39,26 @@ export default class Premium extends Command {
 
                 const daysLeft = Math.ceil((premiumData.expiresAt - Date.now()) / (1000 * 60 * 60 * 24));
 
-                const statusEmbed = client.embed()
+                const statusEmbed = client
+                    .embed()
                     .desc(
                         `You are a **Premium** member! Your subscription expires on **${expiryDate}** (${daysLeft} days remaining).\n\n` +
-                        `**Your Benefits:**\n${benefits.map(b => `› ${b}`).join('\n')}`
+                            `**Your Benefits:**\n${benefits.map((b) => `› ${b}`).join('\n')}`
                     )
-                    .footer({ text: `Plan: ${premiumData.plan || 'Standard'} • Member since ${new Date(premiumData.since).toLocaleDateString()}` });
+                    .footer({
+                        text: `Plan: ${premiumData.plan || 'Standard'} • Member since ${new Date(premiumData.since).toLocaleDateString()}`,
+                    });
 
                 return await ctx.reply({ embeds: [statusEmbed] });
             }
 
             // Non-premium user
-            const promoEmbed = client.embed()
+            const promoEmbed = client
+                .embed()
                 .desc(
                     `Upgrade to **Premium** and unlock the full potential of Nerox!\n\n` +
-                    `**Premium Benefits:**\n${benefits.map(b => `› ${b}`).join('\n')}\n\n` +
-                    `Use \`${client.prefix}redeem <code>\` if you have a code, or contact support to get premium.`
+                        `**Premium Benefits:**\n${benefits.map((b) => `› ${b}`).join('\n')}\n\n` +
+                        `Use \`${client.prefix}redeem <code>\` if you have a code, or contact support to get premium.`
                 )
                 .footer({ text: 'Premium • Elevate your music experience' });
 

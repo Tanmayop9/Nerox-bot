@@ -17,15 +17,19 @@ export default class PlayerDestroy {
         // Update the play embed
         const playEmbed = player.data.get('playEmbed');
         if (playEmbed) {
-            await playEmbed.edit({
-                embeds: [
-                    client.embed().desc(
-                        `Playback ended. Thanks for listening!\n\n` +
-                        `[Invite Nerox](${client.invite.admin()}) to your other servers.`
-                    )
-                ],
-                components: [],
-            }).catch(() => null);
+            await playEmbed
+                .edit({
+                    embeds: [
+                        client
+                            .embed()
+                            .desc(
+                                `Playback ended. Thanks for listening!\n\n` +
+                                    `[Invite Nerox](${client.invite.admin()}) to your other servers.`
+                            ),
+                    ],
+                    components: [],
+                })
+                .catch(() => null);
         }
 
         // Wait before checking 24/7

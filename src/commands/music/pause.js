@@ -17,17 +17,27 @@ export default class Pause extends Command {
         this.execute = async (client, ctx) => {
             const player = client.getPlayer(ctx);
 
-            if (!player.playing) {
+            if (!player) {
                 return await ctx.reply({
-                    embeds: [client.embed().desc('`Player is not playing`')],
+                    embeds: [client.embed().desc(`${client.emoji.cross} No player found.`)],
                 });
             }
 
-            player.pause(true);
-            await updatePlayerButtons(client, player);
+            if (player.paused) {
+                return await ctx.reply({
+                    embeds: [client.embed().desc(`${client.emoji.info} Player is already paused.`)],
+                });
+            }
+
+            // Pause (works with both Lavalink and NeroxPlayer)
+            if (player.pause) {
+                player.pause(true);
+            }
+
+            await updatePlayerButtons(client, player).catch(() => null);
 
             await ctx.reply({
-                embeds: [client.embed().desc('`Paused`')],
+                embeds: [client.embed().desc(`${client.emoji.pause} Paused playback.`)],
             });
         };
     }

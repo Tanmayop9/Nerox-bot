@@ -1,4 +1,4 @@
-import { ActionRowBuilder, StringSelectMenuBuilder, } from 'discord.js';
+import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 import { filter } from '../../utils/filter.js';
 import { Command } from '../../classes/abstract/command.js';
 export default class Search extends Command {
@@ -24,7 +24,8 @@ export default class Search extends Command {
                 });
                 return;
             }
-            const player = client.getPlayer(ctx) ||
+            const player =
+                client.getPlayer(ctx) ||
                 (await client.manager.createPlayer({
                     deaf: false,
                     guildId: ctx.guild.id,
@@ -33,30 +34,26 @@ export default class Search extends Command {
                     voiceId: ctx.member.voice.channel.id,
                 }));
             const waitEmbed = await ctx.reply({
-                embeds: [
-                    client
-                        .embed()
-                        .desc(`${client.emoji.timer} Please wait while I search for relevant tracks.`),
-                ],
+                embeds: [client.embed().desc(`${client.emoji.timer} Please wait while I search for relevant tracks.`)],
             });
             const result = {
                 youtube: await player
                     .search(args.join(' '), {
-                    engine: 'youtube',
-                    requester: ctx.author,
-                })
+                        engine: 'youtube',
+                        requester: ctx.author,
+                    })
                     .then((res) => res.tracks),
                 spotify: await player
                     .search(args.join(' '), {
-                    engine: 'spotify',
-                    requester: ctx.author,
-                })
+                        engine: 'spotify',
+                        requester: ctx.author,
+                    })
                     .then((res) => res.tracks),
                 soundcloud: await player
                     .search(args.join(' '), {
-                    engine: 'soundcloud',
-                    requester: ctx.author,
-                })
+                        engine: 'soundcloud',
+                        requester: ctx.author,
+                    })
                     .then((res) => res.tracks),
             };
             const tracks = [
@@ -109,8 +106,7 @@ export default class Search extends Command {
                     embeds: [client.embed().desc(desc.added.join('') + desc.notAdded.join(''))],
                     components: [],
                 });
-                if (!player.playing && !player.paused)
-                    player.play();
+                if (!player.playing && !player.paused) player.play();
             });
             collector.on('end', async (collected) => {
                 if (collected.size == 0)

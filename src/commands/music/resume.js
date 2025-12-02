@@ -18,21 +18,31 @@ export default class Resume extends Command {
         this.execute = async (client, ctx) => {
             const player = client.getPlayer(ctx);
 
-            if (!player.paused) {
+            if (!player) {
                 return await ctx.reply({
-                    embeds: [client.embed().desc('Player is not paused.')],
+                    embeds: [client.embed().desc(`${client.emoji.cross} No player found.`)],
                 });
             }
 
-            player.pause(false);
-            await updatePlayerButtons(client, player);
+            if (!player.paused) {
+                return await ctx.reply({
+                    embeds: [client.embed().desc(`${client.emoji.info} Player is not paused.`)],
+                });
+            }
 
-            const track = player.queue.current;
+            // Resume (works with both Lavalink and NeroxPlayer)
+            if (player.pause) {
+                player.pause(false);
+            }
+
+            await updatePlayerButtons(client, player).catch(() => null);
+
+            const track = player.queue?.current;
             await ctx.reply({
                 embeds: [
-                    client.embed().desc(
-                        `Resumed playing **${track?.title?.substring(0, 50) || 'current track'}**.`
-                    )
+                    client
+                        .embed()
+                        .desc(`${client.emoji.resume} Resumed **${track?.title?.substring(0, 50) || 'playback'}**`),
                 ],
             });
         };

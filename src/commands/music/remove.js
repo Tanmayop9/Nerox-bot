@@ -20,9 +20,7 @@ export default class Remove extends Command {
             const track = player.queue[position];
             if (position > player.queue.length || !track) {
                 await ctx.reply({
-                    embeds: [
-                        client.embed().desc(`${client.emoji.cross} No song in queue at postion ${position + 1}.`),
-                    ],
+                    embeds: [client.embed().desc(`${client.emoji.cross} No song in queue at postion ${position + 1}.`)],
                 });
                 return;
             }

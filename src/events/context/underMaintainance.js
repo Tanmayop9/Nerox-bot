@@ -14,10 +14,12 @@ export default class UnderMaintenance {
     execute = async (client, ctx) => {
         await ctx.reply({
             embeds: [
-                client.embed().desc(
-                    `Nerox is currently under maintenance. We're working to bring it back online as soon as possible.\n\n` +
-                    `Join our [support server](${client.config.links?.support || 'https://discord.gg/nerox'}) for updates.`
-                )
+                client
+                    .embed()
+                    .desc(
+                        `Nerox is currently under maintenance. We're working to bring it back online as soon as possible.\n\n` +
+                            `Join our [support server](${client.config.links?.support || 'https://discord.gg/nerox'}) for updates.`
+                    ),
             ],
         });
     };

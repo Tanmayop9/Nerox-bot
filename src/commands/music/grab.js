@@ -10,33 +10,37 @@ export default class Grab extends Command {
             const track = client.getPlayer(ctx).queue.current;
             await ctx.author
                 .send({
-                embeds: [
-                    client
-                        .embed()
-                        .desc(`${client.emoji.check} **${track.title}**\n\n` +
-                        `ㅤ${client.emoji.info} Duration: ${client.formatDuration(track.length)}\n` +
-                        `ㅤ${client.emoji.info1} Author: ${track?.author?.substring(0, 12)}\n`),
-                ],
-                components: [
-                    new ActionRowBuilder().addComponents([
+                    embeds: [
                         client
-                            .button()
-                            .link(`Link to song ( External source - ${track.sourceName} )`, track.uri),
-                    ]),
-                ],
-            })
-                .then(async () => await ctx.react(client.emoji.check, {
-                embeds: [
-                    client.embed().desc(`${client.emoji.check} Sent current song info to your DM.`),
-                ],
-            }))
-                .catch(async () => await ctx.react(client.emoji.cross, {
-                embeds: [
-                    client
-                        .embed()
-                        .desc(`${client.emoji.cross} Could not send current song info to your DM.`),
-                ],
-            }));
+                            .embed()
+                            .desc(
+                                `${client.emoji.check} **${track.title}**\n\n` +
+                                    `ㅤ${client.emoji.info} Duration: ${client.formatDuration(track.length)}\n` +
+                                    `ㅤ${client.emoji.info1} Author: ${track?.author?.substring(0, 12)}\n`
+                            ),
+                    ],
+                    components: [
+                        new ActionRowBuilder().addComponents([
+                            client.button().link(`Link to song ( External source - ${track.sourceName} )`, track.uri),
+                        ]),
+                    ],
+                })
+                .then(
+                    async () =>
+                        await ctx.react(client.emoji.check, {
+                            embeds: [client.embed().desc(`${client.emoji.check} Sent current song info to your DM.`)],
+                        })
+                )
+                .catch(
+                    async () =>
+                        await ctx.react(client.emoji.cross, {
+                            embeds: [
+                                client
+                                    .embed()
+                                    .desc(`${client.emoji.cross} Could not send current song info to your DM.`),
+                            ],
+                        })
+                );
         };
     }
 }

@@ -57,7 +57,9 @@ export default class PlayerButtonClick {
                 case 'next':
                     if (player.queue.length === 0 && !player.data.get('autoplayStatus')) {
                         await interaction.reply({
-                            embeds: [client.embed().desc(`${client.emoji.cross} No more songs left in the queue to skip.`)],
+                            embeds: [
+                                client.embed().desc(`${client.emoji.cross} No more songs left in the queue to skip.`),
+                            ],
                             ephemeral: true,
                         });
                         break;
@@ -69,7 +71,9 @@ export default class PlayerButtonClick {
                     const previousTrack = player.queue.previous.pop();
                     if (!previousTrack) {
                         await interaction.reply({
-                            embeds: [client.embed().desc(`${client.emoji.cross} There are no previously played song/s.`)],
+                            embeds: [
+                                client.embed().desc(`${client.emoji.cross} There are no previously played song/s.`),
+                            ],
                             ephemeral: true,
                         });
                         break;
@@ -91,20 +95,28 @@ export default class PlayerButtonClick {
                     }
 
                     const liked = (await client.db.liked.get(userId)) || [];
-                    const index = liked.findIndex(track => track.uri === current.uri);
+                    const index = liked.findIndex((track) => track.uri === current.uri);
 
                     if (index !== -1) {
                         liked.splice(index, 1);
                         await client.db.liked.set(userId, liked);
                         await interaction.reply({
-                            embeds: [client.embed().desc(`${client.emoji.cross} Removed **${current.title}** from your liked songs.`)],
+                            embeds: [
+                                client
+                                    .embed()
+                                    .desc(`${client.emoji.cross} Removed **${current.title}** from your liked songs.`),
+                            ],
                             ephemeral: true,
                         });
                     } else {
                         liked.push({ title: current.title, uri: current.uri });
                         await client.db.liked.set(userId, liked);
                         await interaction.reply({
-                            embeds: [client.embed().desc(`${client.emoji.check} Added **${current.title}** to your liked songs.`)],
+                            embeds: [
+                                client
+                                    .embed()
+                                    .desc(`${client.emoji.check} Added **${current.title}** to your liked songs.`),
+                            ],
                             ephemeral: true,
                         });
                     }

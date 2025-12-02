@@ -19,14 +19,16 @@ export default class Mention {
             return client.emit('blUser', ctx);
         }
 
-        const prefix = await client.db.prefix.get(ctx.guild?.id) || client.prefix;
+        const prefix = (await client.db.prefix.get(ctx.guild?.id)) || client.prefix;
 
         await ctx.reply({
             embeds: [
-                client.embed().desc(
-                    `Hey ${ctx.author}! I'm **Nerox**, your music companion.\n\n` +
-                    `My prefix here is \`${prefix}\`. Use \`${prefix}help\` to see all commands.`
-                )
+                client
+                    .embed()
+                    .desc(
+                        `Hey ${ctx.author}! I'm **Nerox**, your music companion.\n\n` +
+                            `My prefix here is \`${prefix}\`. Use \`${prefix}help\` to see all commands.`
+                    ),
             ],
         });
     };

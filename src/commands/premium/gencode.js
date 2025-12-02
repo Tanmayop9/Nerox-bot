@@ -69,7 +69,7 @@ export default class GenerateCode extends Command {
                     plan: plan,
                     createdBy: ctx.author.id,
                     createdAt: Date.now(),
-                    expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000), // Code expires in 30 days if not used
+                    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // Code expires in 30 days if not used
                     usedBy: null,
                     usedAt: null,
                 });
@@ -81,24 +81,30 @@ export default class GenerateCode extends Command {
 
             await msg.edit({
                 embeds: [
-                    client.embed().desc(
-                        `Generated **${count}** premium code(s) for **${days} days** (${plan}):\n\n${codeList}\n\n` +
-                        `Codes are valid for 30 days from generation.`
-                    )
+                    client
+                        .embed()
+                        .desc(
+                            `Generated **${count}** premium code(s) for **${days} days** (${plan}):\n\n${codeList}\n\n` +
+                                `Codes are valid for 30 days from generation.`
+                        ),
                 ],
             });
 
             // DM the codes to the owner for safety
-            await ctx.author.send({
-                embeds: [
-                    client.embed().desc(
-                        `**Premium Codes Generated**\n\n` +
-                        `Duration: ${days} days\n` +
-                        `Plan: ${plan}\n\n` +
-                        `${codeList}`
-                    )
-                ],
-            }).catch(() => null);
+            await ctx.author
+                .send({
+                    embeds: [
+                        client
+                            .embed()
+                            .desc(
+                                `**Premium Codes Generated**\n\n` +
+                                    `Duration: ${days} days\n` +
+                                    `Plan: ${plan}\n\n` +
+                                    `${codeList}`
+                            ),
+                    ],
+                })
+                .catch(() => null);
         };
     }
 }

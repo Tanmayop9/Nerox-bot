@@ -2,10 +2,10 @@
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
  * @description Complete Voice Recognition System using Wit.ai
- * 
+ *
  * Captures user audio from Discord VC and processes speech-to-text
  * for music commands. Supports Hindi + English.
- * 
+ *
  * Setup: Get free API key from https://wit.ai
  * Add WIT_AI_TOKEN to your .env file
  */
@@ -38,9 +38,11 @@ const voiceCommands = {
                 });
 
                 if (!result.tracks.length) {
-                    return textChannel.send({
-                        embeds: [client.embed().desc(`🎤 "${args}" not found.`)],
-                    }).catch(() => {});
+                    return textChannel
+                        .send({
+                            embeds: [client.embed().desc(`🎤 "${args}" not found.`)],
+                        })
+                        .catch(() => {});
                 }
 
                 const track = result.tracks[0];
@@ -48,9 +50,11 @@ const voiceCommands = {
 
                 if (!player.playing && !player.paused) player.play();
 
-                textChannel.send({
-                    embeds: [client.embed().desc(`🎤 Added **${track.title.substring(0, 40)}**`)],
-                }).catch(() => {});
+                textChannel
+                    .send({
+                        embeds: [client.embed().desc(`🎤 Added **${track.title.substring(0, 40)}**`)],
+                    })
+                    .catch(() => {});
             } catch (err) {
                 console.error('[VoiceCmd] Play error:', err.message);
             }
@@ -68,9 +72,11 @@ const voiceCommands = {
 
             try {
                 await player.shoukaku.stopTrack();
-                textChannel?.send({
-                    embeds: [client.embed().desc(`🎤 Skipped **${title}**`)],
-                }).catch(() => {});
+                textChannel
+                    ?.send({
+                        embeds: [client.embed().desc(`🎤 Skipped **${title}**`)],
+                    })
+                    .catch(() => {});
             } catch (err) {
                 console.error('[VoiceCmd] Skip error:', err.message);
             }
@@ -87,9 +93,11 @@ const voiceCommands = {
 
             try {
                 await player.destroy();
-                textChannel?.send({
-                    embeds: [client.embed().desc('�� Stopped.')],
-                }).catch(() => {});
+                textChannel
+                    ?.send({
+                        embeds: [client.embed().desc('�� Stopped.')],
+                    })
+                    .catch(() => {});
             } catch (err) {
                 console.error('[VoiceCmd] Stop error:', err.message);
             }
@@ -107,9 +115,11 @@ const voiceCommands = {
             try {
                 player.pause(true);
                 await updatePlayerButtons(client, player);
-                textChannel?.send({
-                    embeds: [client.embed().desc('🎤 Paused.')],
-                }).catch(() => {});
+                textChannel
+                    ?.send({
+                        embeds: [client.embed().desc('🎤 Paused.')],
+                    })
+                    .catch(() => {});
             } catch (err) {
                 console.error('[VoiceCmd] Pause error:', err.message);
             }
@@ -127,9 +137,11 @@ const voiceCommands = {
             try {
                 player.pause(false);
                 await updatePlayerButtons(client, player);
-                textChannel?.send({
-                    embeds: [client.embed().desc('🎤 Resumed.')],
-                }).catch(() => {});
+                textChannel
+                    ?.send({
+                        embeds: [client.embed().desc('🎤 Resumed.')],
+                    })
+                    .catch(() => {});
             } catch (err) {
                 console.error('[VoiceCmd] Resume error:', err.message);
             }
@@ -144,14 +156,16 @@ const voiceCommands = {
 
             const textChannel = client.channels.cache.get(session.textId);
             const status = player.data.get('autoplayStatus');
-            
+
             status ? player.data.delete('autoplayStatus') : player.data.set('autoplayStatus', true);
 
             try {
                 await updatePlayerButtons(client, player);
-                textChannel?.send({
-                    embeds: [client.embed().desc(`🎤 Autoplay ${!status ? 'on' : 'off'}.`)],
-                }).catch(() => {});
+                textChannel
+                    ?.send({
+                        embeds: [client.embed().desc(`🎤 Autoplay ${!status ? 'on' : 'off'}.`)],
+                    })
+                    .catch(() => {});
             } catch (err) {
                 console.error('[VoiceCmd] Autoplay error:', err.message);
             }
@@ -172,14 +186,14 @@ const recognizeSpeech = (audioBuffer) => {
             path: '/speech?v=20230215',
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
                 'Content-Type': 'audio/raw;encoding=signed-integer;bits=16;rate=48000;endian=little',
             },
         };
 
         const req = https.request(options, (res) => {
             let data = '';
-            res.on('data', chunk => data += chunk);
+            res.on('data', (chunk) => (data += chunk));
             res.on('end', () => {
                 try {
                     const json = JSON.parse(data);
@@ -191,7 +205,10 @@ const recognizeSpeech = (audioBuffer) => {
         });
 
         req.on('error', () => resolve(null));
-        req.setTimeout(10000, () => { req.destroy(); resolve(null); });
+        req.setTimeout(10000, () => {
+            req.destroy();
+            resolve(null);
+        });
         req.write(audioBuffer);
         req.end();
     });
@@ -242,7 +259,11 @@ const startListening = (client, guildId, userId, session) => {
             end: { behavior: EndBehaviorType.AfterSilence, duration: 1500 },
         });
 
-        const decoder = new prism.opus.Decoder({ rate: 48000, channels: 1, frameSize: 960 });
+        const decoder = new prism.opus.Decoder({
+            rate: 48000,
+            channels: 1,
+            frameSize: 960,
+        });
         const chunks = [];
 
         audioStream.pipe(decoder);
@@ -288,14 +309,16 @@ export class StartVoiceRecognition {
         if (!process.env.WIT_AI_TOKEN) {
             return textChannel.send({
                 embeds: [
-                    client.embed().desc(
-                        `🎤 **Voice Commands Setup**\n\n` +
-                        `1. Go to [wit.ai](https://wit.ai) (free)\n` +
-                        `2. Create app → Settings → Server Access Token\n` +
-                        `3. Add \`WIT_AI_TOKEN=your_token\` to .env\n` +
-                        `4. Restart bot\n\n` +
-                        `_Supports Hindi + English!_`
-                    )
+                    client
+                        .embed()
+                        .desc(
+                            `🎤 **Voice Commands Setup**\n\n` +
+                                `1. Go to [wit.ai](https://wit.ai) (free)\n` +
+                                `2. Create app → Settings → Server Access Token\n` +
+                                `3. Add \`WIT_AI_TOKEN=your_token\` to .env\n` +
+                                `4. Restart bot\n\n` +
+                                `_Supports Hindi + English!_`
+                        ),
                 ],
             });
         }
@@ -314,16 +337,18 @@ export class StartVoiceRecognition {
 
         await textChannel.send({
             embeds: [
-                client.embed().desc(
-                    `🎤 **Voice Commands ON** for **${user.username}**\n\n` +
-                    `Say these commands:\n` +
-                    `• "play <song>"\n` +
-                    `• "skip" / "next"\n` +
-                    `• "stop" / "band karo"\n` +
-                    `• "pause" / "resume"\n` +
-                    `• "autoplay"\n\n` +
-                    `_Hindi bhi chalega!_`
-                )
+                client
+                    .embed()
+                    .desc(
+                        `🎤 **Voice Commands ON** for **${user.username}**\n\n` +
+                            `Say these commands:\n` +
+                            `• "play <song>"\n` +
+                            `• "skip" / "next"\n` +
+                            `• "stop" / "band karo"\n` +
+                            `• "pause" / "resume"\n` +
+                            `• "autoplay"\n\n` +
+                            `_Hindi bhi chalega!_`
+                    ),
             ],
         });
 
@@ -346,9 +371,11 @@ export class StopVoiceRecognition {
         activeUsers.delete(userId);
 
         const textChannel = client.channels.cache.get(session.textId);
-        textChannel?.send({
-            embeds: [client.embed().desc(`🎤 Voice commands OFF for **${session.userName}**.`)],
-        }).catch(() => {});
+        textChannel
+            ?.send({
+                embeds: [client.embed().desc(`🎤 Voice commands OFF for **${session.userName}**.`)],
+            })
+            .catch(() => {});
 
         client.log(`[Voice] Stopped for ${session.userName}`, 'info');
     };

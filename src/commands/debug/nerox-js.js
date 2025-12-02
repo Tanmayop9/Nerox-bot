@@ -16,11 +16,15 @@ export default class JSKJS extends Command {
         if (!code) {
             return ctx.reply({
                 embeds: [
-                    client.embed()
+                    client
+                        .embed()
                         .title(`${cross} Missing Code`)
                         .desc(`${info1} You need to provide JavaScript code to evaluate.`)
-                        .footer({ text: `Requested by ${ctx.author.username}`, iconURL: ctx.author.displayAvatarURL() })
-                ]
+                        .footer({
+                            text: `Requested by ${ctx.author.username}`,
+                            iconURL: ctx.author.displayAvatarURL(),
+                        }),
+                ],
             });
         }
 
@@ -30,18 +34,25 @@ export default class JSKJS extends Command {
                 result = inspect(result, { depth: 2 });
             }
 
-            const embed = client.embed()
+            const embed = client
+                .embed()
                 .title(`${check} JavaScript Evaluation`)
                 .desc(`\`\`\`js\n${result}\n\`\`\``)
-                .footer({ text: `Requested by ${ctx.author.username}`, iconURL: ctx.author.displayAvatarURL() });
+                .footer({
+                    text: `Requested by ${ctx.author.username}`,
+                    iconURL: ctx.author.displayAvatarURL(),
+                });
 
             await ctx.reply({ embeds: [embed] });
-
         } catch (err) {
-            const errorEmbed = client.embed()
+            const errorEmbed = client
+                .embed()
                 .title(`${cross} Error While Evaluating`)
                 .desc(`\`\`\`js\n${err.stack || err.message || err}\n\`\`\``)
-                .footer({ text: `Requested by ${ctx.author.username}`, iconURL: ctx.author.displayAvatarURL() });
+                .footer({
+                    text: `Requested by ${ctx.author.username}`,
+                    iconURL: ctx.author.displayAvatarURL(),
+                });
 
             await ctx.reply({ embeds: [errorEmbed] });
         }

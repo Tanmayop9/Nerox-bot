@@ -1,7 +1,7 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * 
+ *
  */
 import { Command } from '../../classes/abstract/command.js';
 export default class Commands extends Command {
@@ -21,10 +21,15 @@ export default class Commands extends Command {
             }, {});
             await ctx.reply({
                 embeds: [
-                    client.embed().desc(Object.entries(allCommands)
-                        .sort((b, a) => b[0].length - a[0].length)
-                        .map(([category, commands]) => `${client.emoji.check} **${category.charAt(0).toUpperCase() + category.slice(1)} commands : **\n${commands.map((cmd) => `\`${cmd.name}\``).join(', ')}`)
-                        .join('\n\n')),
+                    client.embed().desc(
+                        Object.entries(allCommands)
+                            .sort((b, a) => b[0].length - a[0].length)
+                            .map(
+                                ([category, commands]) =>
+                                    `${client.emoji.check} **${category.charAt(0).toUpperCase() + category.slice(1)} commands : **\n${commands.map((cmd) => `\`${cmd.name}\``).join(', ')}`
+                            )
+                            .join('\n\n')
+                    ),
                 ],
             });
         };

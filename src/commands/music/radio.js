@@ -1,4 +1,4 @@
-import { ActionRowBuilder, StringSelectMenuBuilder, } from 'discord.js';
+import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 import { filter } from '../../utils/filter.js';
 import { Command } from '../../classes/abstract/command.js';
 const rad = {
@@ -12,7 +12,8 @@ export default class Radio extends Command {
         this.aliases = ['rad'];
         this.description = 'Listen to radio';
         this.execute = async (client, ctx) => {
-            const player = client.getPlayer(ctx) ||
+            const player =
+                client.getPlayer(ctx) ||
                 (await client.manager.createPlayer({
                     deaf: false,
                     guildId: ctx.guild.id,
@@ -43,8 +44,8 @@ export default class Radio extends Command {
                 await interaction.deferUpdate();
                 const tracks = await player
                     .search(interaction.values[0], {
-                    requester: ctx.author,
-                })
+                        requester: ctx.author,
+                    })
                     .then((res) => res.tracks);
                 if (!tracks[0]) {
                     await reply.edit({

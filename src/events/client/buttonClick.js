@@ -1,4 +1,3 @@
-
 const event = 'buttonClick';
 export default class ButtonClick {
     constructor() {

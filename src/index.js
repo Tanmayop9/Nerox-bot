@@ -37,19 +37,21 @@ const clusterManager = new ClusterManager(file, {
 });
 
 // Heartbeat Manager for cluster health monitoring
-clusterManager.extend(new HeartbeatManager({
-    interval: 5000,
-    maxMissedHeartbeats: 5,
-}));
+clusterManager.extend(
+    new HeartbeatManager({
+        interval: 5000,
+        maxMissedHeartbeats: 5,
+    })
+);
 
 // Event handlers
-clusterManager.on('clusterCreate', cluster => {
+clusterManager.on('clusterCreate', (cluster) => {
     log(`Cluster ${cluster.id} created`, 'info');
-    
+
     cluster.on('death', () => {
         log(`Cluster ${cluster.id} died, respawning...`, 'warn');
     });
-    
+
     cluster.on('error', (error) => {
         log(`Cluster ${cluster.id} error: ${error.message}`, 'error');
     });
@@ -59,14 +61,14 @@ clusterManager.on('clusterCreate', cluster => {
 const spawnClusters = async () => {
     try {
         log('Nerox v4.0.0 starting...', 'info');
-        await clusterManager.spawn({ 
+        await clusterManager.spawn({
             timeout: -1,
-            delay: 7000 // 7 second delay between cluster spawns
+            delay: 7000, // 7 second delay between cluster spawns
         });
     } catch (error) {
         if (error.message.includes('429')) {
             log('Rate limited by Discord. Waiting 60 seconds before retry...', 'warn');
-            await new Promise(r => setTimeout(r, 60000));
+            await new Promise((r) => setTimeout(r, 60000));
             spawnClusters();
         } else {
             log(`Failed to spawn clusters: ${error.message}`, 'error');

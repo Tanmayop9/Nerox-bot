@@ -65,20 +65,22 @@ export default class NoPrefix extends Command {
 
             const validUsers = users.filter(Boolean);
             const list = validUsers.map((u, i) => `\`${i + 1}.\` ${u.tag} (${u.id})`);
-            
+
             const chunks = _.chunk(list, 10);
             const pages = chunks.map((chunk, i) =>
-                client.embed()
+                client
+                    .embed()
                     .desc(chunk.join('\n'))
-                    .footer({ text: `Page ${i + 1}/${chunks.length} • ${validUsers.length} users` })
+                    .footer({
+                        text: `Page ${i + 1}/${chunks.length} • ${validUsers.length} users`,
+                    })
             );
 
             return await paginator(ctx, pages);
         }
 
         // Get target user
-        const target = ctx.mentions.users?.first() || 
-            await client.users.fetch(args[1]).catch(() => null);
+        const target = ctx.mentions.users?.first() || (await client.users.fetch(args[1]).catch(() => null));
 
         if (!target) {
             return ctx.reply({

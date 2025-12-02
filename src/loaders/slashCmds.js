@@ -8,11 +8,11 @@ export const deploySlashCommands = async (client) => {
     const rest = new REST().setToken(client.config.token);
     for (const category of await readdir(resolve(__dirname, '../commands'))) {
         for (const file of await readdir(resolve(__dirname, '../commands', category))) {
-            if (!file.endsWith('.js'))
-                continue;
-            const command = new (await import(pathToFileURL(resolve(__dirname, '../commands', category, file)).href)).default();
-            if (!command.slash)
-                continue;
+            if (!file.endsWith('.js')) continue;
+            const command = new (
+                await import(pathToFileURL(resolve(__dirname, '../commands', category, file)).href)
+            ).default();
+            if (!command.slash) continue;
             const slashCommand = new SlashCommandBuilder()
                 .setName(file.split('.')[0].toLowerCase())
                 .setDescription(command.description);
@@ -28,21 +28,21 @@ export const deploySlashCommands = async (client) => {
                             .setDescription(op.description)
                             .setRequired(op.required)
                             .setAutocomplete(op.isAutoComplete || false);
-                        if (op.choices)
-                            option.addChoices(...op.choices);
+                        if (op.choices) option.addChoices(...op.choices);
                         return option;
                     });
                     continue;
                 }
-                slashCommand[{
-                    user: 'addUserOption',
-                    role: 'addRoleOption',
-                    number: 'addNumberOption',
-                    boolean: 'addBooleanOption',
-                    channel: 'addChannelOption',
-                    attachment: 'addAttachmentOption',
-                }[op.opType]
-                //@ts-expect-error no errs tbh
+                slashCommand[
+                    {
+                        user: 'addUserOption',
+                        role: 'addRoleOption',
+                        number: 'addNumberOption',
+                        boolean: 'addBooleanOption',
+                        channel: 'addChannelOption',
+                        attachment: 'addAttachmentOption',
+                    }[op.opType]
+                    //@ts-expect-error no errs tbh
                 ]((option) => {
                     option.setName(op.name).setDescription(op.description).setRequired(op.required);
                     return option;

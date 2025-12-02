@@ -7,16 +7,20 @@ export default class JSK extends Command {
     }
 
     execute = async (client, ctx) => {
-        const embed = client.embed()
+        const embed = client
+            .embed()
             .title('Debug Commands')
             .desc(
                 `${client.emoji.info}**\`nerox main\`** - Shows full debug information.\n` +
-                `${client.emoji.info}**\`nerox js <code>\`** - Evaluates JavaScript code.\n` +
-                `${client.emoji.info}**\`nerox cat\`** - Displays bot logs.\n` +
-                `${client.emoji.info}**\`nerox sh <cmd>\`** - Executes shell commands.\n` +
-                `${client.emoji.info}**\`nerox rtt\`** - Shows real-time latency.`
+                    `${client.emoji.info}**\`nerox js <code>\`** - Evaluates JavaScript code.\n` +
+                    `${client.emoji.info}**\`nerox cat\`** - Displays bot logs.\n` +
+                    `${client.emoji.info}**\`nerox sh <cmd>\`** - Executes shell commands.\n` +
+                    `${client.emoji.info}**\`nerox rtt\`** - Shows real-time latency.`
             )
-            .footer({ text: `Requested by ${ctx.author.tag}`, iconURL: ctx.author.displayAvatarURL() });
+            .footer({
+                text: `Requested by ${ctx.author.tag}`,
+                iconURL: ctx.author.displayAvatarURL(),
+            });
 
         await ctx.reply({ embeds: [embed] });
     };

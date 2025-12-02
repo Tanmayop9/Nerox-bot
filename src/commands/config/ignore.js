@@ -8,7 +8,7 @@ export default class Ignore extends Command {
         this.userPerms = ['ManageGuild'];
         this.aliases = ['ignorechannel', 'igch'];
         this.description = 'Ignore or unignore a channel from using bot commands.';
-        this.example = ['ignorechannel add #chat', 'ignorechannel remove #chat', 'ignorechannel list']
+        this.example = ['ignorechannel add #chat', 'ignorechannel remove #chat', 'ignorechannel list'];
         this.options = [
             {
                 name: 'action',
@@ -33,7 +33,11 @@ export default class Ignore extends Command {
     execute = async (client, ctx, args) => {
         if (!['add', 'remove', 'list'].includes(args[0]?.toLowerCase())) {
             return ctx.reply({
-                embeds: [client.embed().desc(`${client.emoji.cross} Please specify a valid action: \`add\`, \`remove\`, or \`list\`.`)],
+                embeds: [
+                    client
+                        .embed()
+                        .desc(`${client.emoji.cross} Please specify a valid action: \`add\`, \`remove\`, or \`list\`.`),
+                ],
             });
         }
 
@@ -45,9 +49,11 @@ export default class Ignore extends Command {
                 });
             }
 
-            const channelNames = ignoredChannels
-                .map((id, index) => `${index + 1}. <#${id}> (\`${id}\`)`);
-            const embeds = client.embed().setTitle(`${client.emoji.check} Ignored Channels`).desc(channelNames.join('\n'));
+            const channelNames = ignoredChannels.map((id, index) => `${index + 1}. <#${id}> (\`${id}\`)`);
+            const embeds = client
+                .embed()
+                .setTitle(`${client.emoji.check} Ignored Channels`)
+                .desc(channelNames.join('\n'));
             return paginator(ctx, [embeds]);
         }
 
@@ -62,7 +68,13 @@ export default class Ignore extends Command {
             }
             await client.db.ignore.set(targetChannel.id, true);
             return ctx.reply({
-                embeds: [client.embed().desc(`${client.emoji.check} Successfully ignored <#${targetChannel.id}>. Commands will no longer work here.`)],
+                embeds: [
+                    client
+                        .embed()
+                        .desc(
+                            `${client.emoji.check} Successfully ignored <#${targetChannel.id}>. Commands will no longer work here.`
+                        ),
+                ],
             });
         }
 
@@ -74,7 +86,13 @@ export default class Ignore extends Command {
             }
             await client.db.ignore.delete(targetChannel.id);
             return ctx.reply({
-                embeds: [client.embed().desc(`${client.emoji.check} Successfully removed <#${targetChannel.id}> from ignored channels.`)],
+                embeds: [
+                    client
+                        .embed()
+                        .desc(
+                            `${client.emoji.check} Successfully removed <#${targetChannel.id}> from ignored channels.`
+                        ),
+                ],
             });
         }
     };

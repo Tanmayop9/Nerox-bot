@@ -21,16 +21,12 @@ export const getCodeStats = async () => {
     const traverse = async (entryPath, depth = 0) => {
         const entities = await readdir(entryPath);
         for (const entity of entities) {
-            if (entity.startsWith('.'))
-                continue;
+            if (entity.startsWith('.')) continue;
             const entityPath = path.join(entryPath, entity);
             const entityIsDirectory = await stat(entityPath).then((stat) => stat.isDirectory());
-            if (options.excludedFiles.some((entry) => entity.includes(entry)))
-                continue;
-            if (options.excludedExtensions.some((entry) => entity.endsWith(entry)))
-                continue;
-            if (options.excludedDirectories.some((entry) => entity.includes(entry)))
-                continue;
+            if (options.excludedFiles.some((entry) => entity.includes(entry))) continue;
+            if (options.excludedExtensions.some((entry) => entity.endsWith(entry))) continue;
+            if (options.excludedDirectories.some((entry) => entity.includes(entry))) continue;
             if (entityIsDirectory) {
                 stats.tree.push('│ '.repeat(depth) + entity);
                 await traverse(path.join(entryPath, entity), depth + 1);

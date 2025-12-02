@@ -1,4 +1,3 @@
-
 import JOSH from '@joshdb/core';
 // @ts-expect-error no declaration file for the imported module
 import provider from '@joshdb/json';

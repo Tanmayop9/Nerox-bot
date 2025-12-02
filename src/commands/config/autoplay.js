@@ -1,28 +1,46 @@
+/**
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Toggle autoplay mode
+ */
+
 import { Command } from '../../classes/abstract/command.js';
 import { updatePlayerButtons } from '../../functions/updatePlayerButtons.js';
+
 export default class Autoplay extends Command {
     constructor() {
         super(...arguments);
         this.playing = true;
         this.inSameVC = true;
         this.aliases = ['ap'];
-        this.description = 'Toggle autoplay';
-        this.example = ['autoplay']
+        this.description = 'Toggle autoplay mode';
+
         this.execute = async (client, ctx) => {
             const player = client.getPlayer(ctx);
-            const currentStatus = player.data.get('autoplayStatus') ? true : false;
-            currentStatus ?
-                player.data.delete('autoplayStatus')
-                : player.data.set('autoplayStatus', true);
-            await updatePlayerButtons(client, player);
+
+            if (!player) {
+                return await ctx.reply({
+                    embeds: [client.embed().desc(`${client.emoji.cross} No player found.`)],
+                });
+            }
+
+            const currentStatus = player.data?.get('autoplayStatus') ? true : false;
+
+            if (currentStatus) {
+                player.data.delete('autoplayStatus');
+            } else {
+                player.data.set('autoplayStatus', true);
+            }
+
+            await updatePlayerButtons(client, player).catch(() => null);
+
             await ctx.reply({
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.check} Set autoplay mode to \`${!currentStatus ? `enabled` : `disabled`}\`.`),
+                        .desc(`${client.emoji.autoplay} Autoplay ${!currentStatus ? 'enabled' : 'disabled'}.`),
                 ],
             });
         };
     }
 }
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */

@@ -25,31 +25,34 @@ export default class BotInfo extends Command {
         const channels = client.channels.cache.size.toLocaleString();
         const commands = client.commands.size;
         const memory = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(1);
-        
+
         // Get total songs played
         const totalSongs = (await client.db.stats?.songsPlayed?.get('total')) || 0;
 
-        const mainEmbed = client.embed()
+        const mainEmbed = client
+            .embed()
             .desc(
                 `Nerox is currently serving **${servers}** servers with **${users}** users. ` +
-                `The bot has been online for **${uptime}** with a latency of **${ping}ms**. ` +
-                `So far, **${totalSongs.toLocaleString()}** songs have been played across all servers.`
+                    `The bot has been online for **${uptime}** with a latency of **${ping}ms**. ` +
+                    `So far, **${totalSongs.toLocaleString()}** songs have been played across all servers.`
             )
             .footer({ text: 'Nerox v4.0.0 • Made with ♡' });
 
-        const systemEmbed = client.embed()
+        const systemEmbed = client
+            .embed()
             .desc(
                 `Nerox is running on **${os.platform()}** with **${os.arch()}** architecture. ` +
-                `Currently using **${memory}MB** of memory on **Node.js ${process.version}**. ` +
-                `The system has **${os.cpus().length}** CPU cores available.`
+                    `Currently using **${memory}MB** of memory on **Node.js ${process.version}**. ` +
+                    `The system has **${os.cpus().length}** CPU cores available.`
             )
             .footer({ text: 'System Information' });
 
-        const statsEmbed = client.embed()
+        const statsEmbed = client
+            .embed()
             .desc(
                 `Nerox has **${commands}** commands loaded across **${client.categories.length}** categories. ` +
-                `Managing **${channels}** channels on shard **${client.shard?.ids?.[0] || 0}** of **${client.options.shardCount || 1}**. ` +
-                `Total songs played: **${totalSongs.toLocaleString()}**.`
+                    `Managing **${channels}** channels on shard **${client.shard?.ids?.[0] || 0}** of **${client.options.shardCount || 1}**. ` +
+                    `Total songs played: **${totalSongs.toLocaleString()}**.`
             )
             .footer({ text: 'Performance Stats' });
 
@@ -69,13 +72,17 @@ export default class BotInfo extends Command {
 
         const collector = msg.createMessageComponentCollector({
             idle: 60000,
-            filter: i => filter(i, ctx),
+            filter: (i) => filter(i, ctx),
         });
 
-        collector.on('collect', async interaction => {
+        collector.on('collect', async (interaction) => {
             await interaction.deferUpdate();
             const choice = interaction.values[0];
-            const embeds = { overview: mainEmbed, system: systemEmbed, stats: statsEmbed };
+            const embeds = {
+                overview: mainEmbed,
+                system: systemEmbed,
+                stats: statsEmbed,
+            };
             await msg.edit({ embeds: [embeds[choice] || mainEmbed] });
         });
 

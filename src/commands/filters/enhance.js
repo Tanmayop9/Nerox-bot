@@ -1,7 +1,7 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * 
+ *
  */
 import { Command } from '../../classes/abstract/command.js';
 export default class Enhance extends Command {
@@ -16,7 +16,9 @@ export default class Enhance extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.timer} **Initiating audio enhancement...** Standby while I calibrate your experience.`),
+                        .desc(
+                            `${client.emoji.timer} **Initiating audio enhancement...** Standby while I calibrate your experience.`
+                        ),
                 ],
             });
 
@@ -40,7 +42,9 @@ export default class Enhance extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.timer} **Engaging core audio systems...** Perfecting your VC and player for optimal sound.`),
+                        .desc(
+                            `${client.emoji.timer} **Engaging core audio systems...** Perfecting your VC and player for optimal sound.`
+                        ),
                 ],
             });
             await client.sleep(2);
@@ -50,7 +54,9 @@ export default class Enhance extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.timer} **Calibrating sound signatures...** Optimizing settings for a richer experience.`),
+                        .desc(
+                            `${client.emoji.timer} **Calibrating sound signatures...** Optimizing settings for a richer experience.`
+                        ),
                 ],
             });
             await client.sleep(2);
@@ -60,7 +66,9 @@ export default class Enhance extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.timer} **Analyzing voice channel and player configuration...** Ensuring maximum efficiency.`),
+                        .desc(
+                            `${client.emoji.timer} **Analyzing voice channel and player configuration...** Ensuring maximum efficiency.`
+                        ),
                 ],
             });
             await client.sleep(2);
@@ -70,7 +78,9 @@ export default class Enhance extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.timer} **Filtering and enhancing audio frequencies...** Preparing your sound for liftoff.`),
+                        .desc(
+                            `${client.emoji.timer} **Filtering and enhancing audio frequencies...** Preparing your sound for liftoff.`
+                        ),
                 ],
             });
             await client.sleep(2);
@@ -80,7 +90,9 @@ export default class Enhance extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.timer} **Finalizing audio enhancement...** The next step will be a sonic revolution.`),
+                        .desc(
+                            `${client.emoji.timer} **Finalizing audio enhancement...** The next step will be a sonic revolution.`
+                        ),
                 ],
             });
             await client.sleep(2);
@@ -119,11 +131,13 @@ export default class Enhance extends Command {
                 embeds: [
                     client
                         .embed()
-                        .desc(`${client.emoji.check} **Audio enhancement complete!** Your audio has been upgraded to a whole new level.\n\n` +
-                        `${client.emoji.info} **VC Region:** \`${rtcRegion}\` 🌍\n` +
-                        `${client.emoji.info} **Audio Signature:** \`Harman 2019\` 🎶\n` +
-                        `${client.emoji.info} **Bitrate:** \`${bitrate / 1000}kbps\` 🎧\n` +
-                        `${client.emoji.vote} Enjoy the enhanced sound quality and let your ears rejoice!`),
+                        .desc(
+                            `${client.emoji.check} **Audio enhancement complete!** Your audio has been upgraded to a whole new level.\n\n` +
+                                `${client.emoji.info} **VC Region:** \`${rtcRegion}\` 🌍\n` +
+                                `${client.emoji.info} **Audio Signature:** \`Harman 2019\` 🎶\n` +
+                                `${client.emoji.info} **Bitrate:** \`${bitrate / 1000}kbps\` 🎧\n` +
+                                `${client.emoji.vote} Enjoy the enhanced sound quality and let your ears rejoice!`
+                        ),
                 ],
             });
         };
