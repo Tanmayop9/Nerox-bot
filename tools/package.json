@@ -1,0 +1,20 @@
+{
+    "name": "nerox-server-setup",
+    "version": "1.0.0",
+    "description": "Standalone Termux-compatible tool to setup Nerox Discord support server",
+    "type": "module",
+    "main": "server-setup.js",
+    "scripts": {
+        "start": "node server-setup.js",
+        "setup": "node server-setup.js"
+    },
+    "dependencies": {
+        "discord.js": "^14.15.2",
+        "readline-sync": "^1.4.10"
+    },
+    "engines": {
+        "node": ">=18.x.x"
+    },
+    "author": "Tanmay @ NeroX Studios",
+    "license": "MIT"
+}

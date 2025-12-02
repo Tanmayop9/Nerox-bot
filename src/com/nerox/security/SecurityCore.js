@@ -39,12 +39,28 @@ const _FRAGMENT_COUNT = 16;
 // ══════════════════════════════════════════════════════════════════════════════
 
 const _verifyFragmentIntegrity = () => {
-    const fragments = [_0xa1, _0xb2, _0xc3, _0xd4, _0xe5, _0xf6, _0xg7, _0xh8, 
-                       _0xi9, _0xj0, _0xk1, _0xl2, _0xm3, _0xn4, _0xo5, _0xp6];
-    
+    const fragments = [
+        _0xa1,
+        _0xb2,
+        _0xc3,
+        _0xd4,
+        _0xe5,
+        _0xf6,
+        _0xg7,
+        _0xh8,
+        _0xi9,
+        _0xj0,
+        _0xk1,
+        _0xl2,
+        _0xm3,
+        _0xn4,
+        _0xo5,
+        _0xp6,
+    ];
+
     // Check fragment count
     if (fragments.length !== _FRAGMENT_COUNT) return false;
-    
+
     // Check each fragment has exactly 8 bytes
     for (const frag of fragments) {
         if (!Array.isArray(frag) || frag.length !== 8) return false;
@@ -52,7 +68,7 @@ const _verifyFragmentIntegrity = () => {
             if (typeof byte !== 'number' || byte < 0 || byte > 255) return false;
         }
     }
-    
+
     return true;
 };
 
@@ -64,17 +80,33 @@ const _reconstructExpectedHash = () => {
     if (!_verifyFragmentIntegrity()) {
         return null;
     }
-    
-    const fragments = [_0xa1, _0xb2, _0xc3, _0xd4, _0xe5, _0xf6, _0xg7, _0xh8,
-                       _0xi9, _0xj0, _0xk1, _0xl2, _0xm3, _0xn4, _0xo5, _0xp6];
-    
+
+    const fragments = [
+        _0xa1,
+        _0xb2,
+        _0xc3,
+        _0xd4,
+        _0xe5,
+        _0xf6,
+        _0xg7,
+        _0xh8,
+        _0xi9,
+        _0xj0,
+        _0xk1,
+        _0xl2,
+        _0xm3,
+        _0xn4,
+        _0xo5,
+        _0xp6,
+    ];
+
     let result = '';
     for (const frag of fragments) {
         for (const byte of frag) {
             result += String.fromCharCode(byte);
         }
     }
-    
+
     return result;
 };
 
@@ -85,7 +117,7 @@ const _reconstructExpectedHash = () => {
 const _secureCompare = (a, b) => {
     if (typeof a !== 'string' || typeof b !== 'string') return false;
     if (a.length !== b.length) return false;
-    
+
     try {
         const bufA = Buffer.from(a, 'utf8');
         const bufB = Buffer.from(b, 'utf8');
@@ -112,10 +144,10 @@ const _computeKeyHash = (key) => {
 const _validateKeyStructure = (key) => {
     // Key must be at least 64 characters (hex format)
     if (key.length < 64) return false;
-    
+
     // Key must be valid hex
     if (!/^[a-f0-9]+$/i.test(key)) return false;
-    
+
     // Key must have high entropy (no repeated patterns)
     const chunks = [];
     for (let i = 0; i < key.length; i += 8) {
@@ -123,7 +155,7 @@ const _validateKeyStructure = (key) => {
     }
     const uniqueChunks = new Set(chunks);
     if (uniqueChunks.size < chunks.length * 0.8) return false;
-    
+
     return true;
 };
 
@@ -136,24 +168,24 @@ export const validateKey = (authKey) => {
     if (!authKey || typeof authKey !== 'string') {
         return { valid: false, reason: 'MISSING_KEY' };
     }
-    
+
     // Step 2: Structure validation
     if (!_validateKeyStructure(authKey)) {
         return { valid: false, reason: 'INVALID_STRUCTURE' };
     }
-    
+
     // Step 3: Reconstruct expected hash
     const expectedHash = _reconstructExpectedHash();
     if (!expectedHash) {
         return { valid: false, reason: 'INTEGRITY_FAILURE' };
     }
-    
+
     // Step 4: Compute and compare hash
     const computedHash = _computeKeyHash(authKey);
     if (!_secureCompare(computedHash, expectedHash)) {
         return { valid: false, reason: 'INVALID_KEY' };
     }
-    
+
     return { valid: true };
 };
 
@@ -166,13 +198,13 @@ export const detectTampering = () => {
     if (!_verifyFragmentIntegrity()) {
         return true;
     }
-    
+
     // Verify reconstruction works
     const hash = _reconstructExpectedHash();
     if (!hash || hash.length !== 128) {
         return true;
     }
-    
+
     return false;
 };
 
@@ -187,11 +219,11 @@ const _selfTest = () => {
     if (typeof hash !== 'string' || hash.length !== 128) {
         return false;
     }
-    
+
     // Test comparison
     if (!_secureCompare('test', 'test')) return false;
     if (_secureCompare('test', 'Test')) return false;
-    
+
     return true;
 };
 

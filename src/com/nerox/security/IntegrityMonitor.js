@@ -39,7 +39,7 @@ const _getSecurityFiles = (securityDir) => {
     const files = [];
     try {
         if (!existsSync(securityDir)) return files;
-        
+
         const items = readdirSync(securityDir);
         for (const item of items) {
             if (item.endsWith('.js')) {
@@ -58,10 +58,10 @@ const _getSecurityFiles = (securityDir) => {
 
 export const initializeIntegrityMonitor = (projectRoot) => {
     if (_initialized) return true;
-    
+
     const securityDir = resolve(projectRoot, 'src/com/nerox/security');
     const bootstrapDir = resolve(projectRoot, 'src/com/nerox/core/bootstrap');
-    
+
     // Hash all security files
     const securityFiles = _getSecurityFiles(securityDir);
     for (const file of securityFiles) {
@@ -70,7 +70,7 @@ export const initializeIntegrityMonitor = (projectRoot) => {
             _fileHashes.set(file, hash);
         }
     }
-    
+
     // Hash bootstrap files
     const bootstrapFiles = _getSecurityFiles(bootstrapDir);
     for (const file of bootstrapFiles) {
@@ -79,10 +79,10 @@ export const initializeIntegrityMonitor = (projectRoot) => {
             _fileHashes.set(file, hash);
         }
     }
-    
+
     _lastCheck = Date.now();
     _initialized = true;
-    
+
     return _fileHashes.size > 0;
 };
 
@@ -94,21 +94,21 @@ export const verifyIntegrity = () => {
     if (!_initialized) {
         return { valid: false, reason: 'NOT_INITIALIZED' };
     }
-    
+
     _checkCount++;
-    
+
     for (const [file, expectedHash] of _fileHashes) {
         const currentHash = _hashFile(file);
-        
+
         if (!currentHash) {
             return { valid: false, reason: 'FILE_MISSING', file };
         }
-        
+
         if (currentHash !== expectedHash) {
             return { valid: false, reason: 'FILE_MODIFIED', file };
         }
     }
-    
+
     _lastCheck = Date.now();
     return { valid: true };
 };
@@ -124,19 +124,19 @@ export const startContinuousMonitoring = (intervalMs = 30000, onTamper = null) =
     if (_monitorInterval) {
         clearInterval(_monitorInterval);
     }
-    
+
     _onTamperCallback = onTamper;
-    
+
     _monitorInterval = setInterval(() => {
         const result = verifyIntegrity();
         if (!result.valid && _onTamperCallback) {
             _onTamperCallback(result);
         }
     }, intervalMs);
-    
+
     // Don't prevent process exit
     _monitorInterval.unref();
-    
+
     return true;
 };
 
@@ -157,7 +157,7 @@ export const getMonitorStatus = () => {
         filesMonitored: _fileHashes.size,
         checkCount: _checkCount,
         lastCheck: _lastCheck,
-        monitoring: !!_monitorInterval
+        monitoring: !!_monitorInterval,
     };
 };
 
@@ -166,5 +166,5 @@ export default {
     verifyIntegrity,
     startContinuousMonitoring,
     stopMonitoring,
-    getMonitorStatus
+    getMonitorStatus,
 };
