@@ -1,24 +1,29 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * @description User-based Voice Recognition handler for music commands
+ * @description Complete Voice Recognition System using Wit.ai
  * 
- * This is a user-based system - only the user who enabled voice commands
- * will have their voice recognized for commands.
+ * Captures user audio from Discord VC and processes speech-to-text
+ * for music commands. Supports Hindi + English.
  * 
- * Note: Full speech-to-text requires external APIs (Google, Wit.ai, Vosk).
- * Connect your preferred speech recognition service in processVoiceCommand.
+ * Setup: Get free API key from https://wit.ai
+ * Add WIT_AI_TOKEN to your .env file
  */
 
+import { EndBehaviorType, getVoiceConnection } from '@discordjs/voice';
+import prism from 'prism-media';
+import https from 'https';
 import { updatePlayerButtons } from '../../functions/updatePlayerButtons.js';
 
-// Store active voice sessions per user
+// Active voice sessions per user
 const activeUsers = new Map();
 
-// Supported voice commands
+/**
+ * Voice Commands Configuration
+ */
 const voiceCommands = {
     play: {
-        keywords: ['play', 'baja', 'chalao'],
+        keywords: ['play', 'baja', 'chalao', 'laga', 'bajao', 'lagao'],
         hasArgs: true,
         execute: async (client, userId, session, args) => {
             const player = client.manager.players.get(session.guildId);
@@ -27,157 +32,243 @@ const voiceCommands = {
             const textChannel = client.channels.cache.get(session.textId);
             if (!textChannel) return;
 
-            const result = await player.search(args, {
-                requester: { id: userId, displayName: 'Voice Command' },
-            });
-
-            if (!result.tracks.length) {
-                return await textChannel.send({
-                    embeds: [client.embed().desc(`🎤 No results for "${args}".`)],
+            try {
+                const result = await player.search(args, {
+                    requester: { id: userId, tag: 'Voice' },
                 });
+
+                if (!result.tracks.length) {
+                    return textChannel.send({
+                        embeds: [client.embed().desc(`🎤 "${args}" not found.`)],
+                    }).catch(() => {});
+                }
+
+                const track = result.tracks[0];
+                player.queue.add(track);
+
+                if (!player.playing && !player.paused) player.play();
+
+                textChannel.send({
+                    embeds: [client.embed().desc(`🎤 Added **${track.title.substring(0, 40)}**`)],
+                }).catch(() => {});
+            } catch (err) {
+                console.error('[VoiceCmd] Play error:', err.message);
             }
-
-            const track = result.tracks[0];
-            player.queue.add(track);
-
-            if (!player.playing && !player.paused) {
-                player.play();
-            }
-
-            await textChannel.send({
-                embeds: [client.embed().desc(`🎤 Added **${track.title.substring(0, 45)}** to queue.`)],
-            });
         },
     },
 
     skip: {
-        keywords: ['skip', 'next', 'agla'],
+        keywords: ['skip', 'next', 'agla', 'skip karo'],
         execute: async (client, userId, session) => {
             const player = client.manager.players.get(session.guildId);
             if (!player?.queue?.current) return;
 
             const textChannel = client.channels.cache.get(session.textId);
-            if (!textChannel) return;
+            const title = player.queue.current.title?.substring(0, 30) || 'track';
 
-            const skipped = player.queue.current;
-            await player.shoukaku.stopTrack();
-
-            await textChannel.send({
-                embeds: [client.embed().desc(`🎤 Skipped **${skipped.title.substring(0, 40)}**.`)],
-            });
+            try {
+                await player.shoukaku.stopTrack();
+                textChannel?.send({
+                    embeds: [client.embed().desc(`🎤 Skipped **${title}**`)],
+                }).catch(() => {});
+            } catch (err) {
+                console.error('[VoiceCmd] Skip error:', err.message);
+            }
         },
     },
 
     stop: {
-        keywords: ['stop', 'band', 'ruko'],
+        keywords: ['stop', 'band', 'ruko', 'band karo', 'hatao'],
         execute: async (client, userId, session) => {
             const player = client.manager.players.get(session.guildId);
             if (!player) return;
 
             const textChannel = client.channels.cache.get(session.textId);
 
-            await player.destroy();
-
-            if (textChannel) {
-                await textChannel.send({
-                    embeds: [client.embed().desc('🎤 Stopped playback.')],
-                });
+            try {
+                await player.destroy();
+                textChannel?.send({
+                    embeds: [client.embed().desc('�� Stopped.')],
+                }).catch(() => {});
+            } catch (err) {
+                console.error('[VoiceCmd] Stop error:', err.message);
             }
         },
     },
 
     pause: {
-        keywords: ['pause', 'rok'],
+        keywords: ['pause', 'roko', 'rok do', 'pause karo'],
         execute: async (client, userId, session) => {
             const player = client.manager.players.get(session.guildId);
-            if (!player?.playing) return;
+            if (!player?.playing || player.paused) return;
 
             const textChannel = client.channels.cache.get(session.textId);
-            if (!textChannel) return;
 
-            player.pause(true);
-            await updatePlayerButtons(client, player);
-
-            await textChannel.send({
-                embeds: [client.embed().desc('🎤 Paused.')],
-            });
+            try {
+                player.pause(true);
+                await updatePlayerButtons(client, player);
+                textChannel?.send({
+                    embeds: [client.embed().desc('🎤 Paused.')],
+                }).catch(() => {});
+            } catch (err) {
+                console.error('[VoiceCmd] Pause error:', err.message);
+            }
         },
     },
 
     resume: {
-        keywords: ['resume', 'chalu', 'start'],
+        keywords: ['resume', 'chalu', 'start', 'chalu karo', 'shuru karo'],
         execute: async (client, userId, session) => {
             const player = client.manager.players.get(session.guildId);
             if (!player?.paused) return;
 
             const textChannel = client.channels.cache.get(session.textId);
-            if (!textChannel) return;
 
-            player.pause(false);
-            await updatePlayerButtons(client, player);
-
-            await textChannel.send({
-                embeds: [client.embed().desc('🎤 Resumed.')],
-            });
+            try {
+                player.pause(false);
+                await updatePlayerButtons(client, player);
+                textChannel?.send({
+                    embeds: [client.embed().desc('🎤 Resumed.')],
+                }).catch(() => {});
+            } catch (err) {
+                console.error('[VoiceCmd] Resume error:', err.message);
+            }
         },
     },
 
     autoplay: {
-        keywords: ['autoplay', 'auto'],
+        keywords: ['autoplay', 'auto', 'automatic'],
         execute: async (client, userId, session) => {
             const player = client.manager.players.get(session.guildId);
             if (!player?.queue?.current) return;
 
             const textChannel = client.channels.cache.get(session.textId);
-            if (!textChannel) return;
-
             const status = player.data.get('autoplayStatus');
+            
             status ? player.data.delete('autoplayStatus') : player.data.set('autoplayStatus', true);
 
-            await updatePlayerButtons(client, player);
-
-            await textChannel.send({
-                embeds: [client.embed().desc(`🎤 Autoplay ${!status ? 'enabled' : 'disabled'}.`)],
-            });
+            try {
+                await updatePlayerButtons(client, player);
+                textChannel?.send({
+                    embeds: [client.embed().desc(`🎤 Autoplay ${!status ? 'on' : 'off'}.`)],
+                }).catch(() => {});
+            } catch (err) {
+                console.error('[VoiceCmd] Autoplay error:', err.message);
+            }
         },
     },
 };
 
 /**
- * Process voice command from a specific user
- * @param {Client} client - Discord client
- * @param {string} oderId - User ID who spoke
- * @param {string} transcript - Recognized speech text
+ * Send audio to Wit.ai for speech recognition
  */
-export const processVoiceCommand = async (client, userId, transcript) => {
-    // Check if this user has voice commands enabled
+const recognizeSpeech = (audioBuffer) => {
+    return new Promise((resolve) => {
+        const token = process.env.WIT_AI_TOKEN;
+        if (!token) return resolve(null);
+
+        const options = {
+            hostname: 'api.wit.ai',
+            path: '/speech?v=20230215',
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'audio/raw;encoding=signed-integer;bits=16;rate=48000;endian=little',
+            },
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    resolve(json.text || null);
+                } catch {
+                    resolve(null);
+                }
+            });
+        });
+
+        req.on('error', () => resolve(null));
+        req.setTimeout(10000, () => { req.destroy(); resolve(null); });
+        req.write(audioBuffer);
+        req.end();
+    });
+};
+
+/**
+ * Process recognized text and execute commands
+ */
+const processCommand = async (client, userId, transcript) => {
     const session = activeUsers.get(userId);
-    if (!session) return false;
+    if (!session) return;
 
     const text = transcript.toLowerCase().trim();
+    console.log(`[Voice] ${userId}: "${text}"`);
 
     for (const [, cmd] of Object.entries(voiceCommands)) {
         for (const keyword of cmd.keywords) {
-            if (text.startsWith(keyword)) {
-                const args = cmd.hasArgs ? text.slice(keyword.length).trim() : null;
-                if (cmd.hasArgs && !args) continue;
+            if (text.includes(keyword)) {
+                const args = cmd.hasArgs ? text.replace(new RegExp(`.*${keyword}\\s*`, 'i'), '').trim() : null;
+                if (cmd.hasArgs && (!args || args.length < 2)) continue;
 
                 try {
                     await cmd.execute(client, userId, session, args);
-                    return true;
+                    return;
                 } catch (err) {
-                    console.error('[VoiceRecognition] Command error:', err);
-                    return false;
+                    console.error('[Voice] Command error:', err.message);
                 }
             }
         }
     }
-
-    return false;
 };
 
 /**
- * Start Voice Recognition for a specific user
+ * Start listening to user audio
+ */
+const startListening = (client, guildId, userId, session) => {
+    const connection = getVoiceConnection(guildId);
+    if (!connection) return;
+
+    const receiver = connection.receiver;
+
+    receiver.speaking.on('start', (speakingUserId) => {
+        // Only listen to the user who enabled voice commands
+        if (speakingUserId !== userId) return;
+        if (!activeUsers.has(userId)) return;
+
+        const audioStream = receiver.subscribe(speakingUserId, {
+            end: { behavior: EndBehaviorType.AfterSilence, duration: 1500 },
+        });
+
+        const decoder = new prism.opus.Decoder({ rate: 48000, channels: 1, frameSize: 960 });
+        const chunks = [];
+
+        audioStream.pipe(decoder);
+
+        decoder.on('data', (chunk) => chunks.push(chunk));
+
+        decoder.on('end', async () => {
+            if (chunks.length === 0) return;
+
+            const buffer = Buffer.concat(chunks);
+            // Min 0.5 second of audio
+            if (buffer.length < 48000) return;
+
+            const transcript = await recognizeSpeech(buffer);
+            if (transcript && transcript.length > 1) {
+                await processCommand(client, userId, transcript);
+            }
+        });
+
+        decoder.on('error', () => {});
+        audioStream.on('error', () => {});
+    });
+};
+
+/**
+ * Start Voice Recognition Event
  */
 export class StartVoiceRecognition {
     constructor() {
@@ -186,43 +277,62 @@ export class StartVoiceRecognition {
 
     execute = async (client, player, voiceChannel, user) => {
         const userId = user.id;
+        const guildId = player.guildId;
 
         if (activeUsers.has(userId)) return;
 
         const textChannel = client.channels.cache.get(player.textId);
         if (!textChannel) return;
 
-        // Store user session
+        // Check Wit.ai token
+        if (!process.env.WIT_AI_TOKEN) {
+            return textChannel.send({
+                embeds: [
+                    client.embed().desc(
+                        `🎤 **Voice Commands Setup**\n\n` +
+                        `1. Go to [wit.ai](https://wit.ai) (free)\n` +
+                        `2. Create app → Settings → Server Access Token\n` +
+                        `3. Add \`WIT_AI_TOKEN=your_token\` to .env\n` +
+                        `4. Restart bot\n\n` +
+                        `_Supports Hindi + English!_`
+                    )
+                ],
+            });
+        }
+
+        // Store session
         activeUsers.set(userId, {
-            oderId: userId,
+            userId: userId,
             userName: user.username,
-            guildId: player.guildId,
+            guildId: guildId,
             voiceId: voiceChannel.id,
             textId: player.textId,
-            startedAt: Date.now(),
         });
+
+        // Start listening
+        startListening(client, guildId, userId, activeUsers.get(userId));
 
         await textChannel.send({
             embeds: [
                 client.embed().desc(
-                    `🎤 **Voice Commands Active** for **${user.username}**\n\n` +
-                    `Speak these commands:\n` +
+                    `🎤 **Voice Commands ON** for **${user.username}**\n\n` +
+                    `Say these commands:\n` +
                     `• "play <song>"\n` +
-                    `• "skip"\n` +
-                    `• "stop"\n` +
+                    `• "skip" / "next"\n` +
+                    `• "stop" / "band karo"\n` +
                     `• "pause" / "resume"\n` +
                     `• "autoplay"\n\n` +
-                    `_Only ${user.username}'s voice will be recognized._`
+                    `_Hindi bhi chalega!_`
                 )
             ],
         });
 
-        client.log(`[VoiceRecognition] Started for user ${user.tag}`, 'info');
+        client.log(`[Voice] Started for ${user.tag}`, 'success');
     };
 }
 
 /**
- * Stop Voice Recognition for a specific user
+ * Stop Voice Recognition Event
  */
 export class StopVoiceRecognition {
     constructor() {
@@ -236,23 +346,15 @@ export class StopVoiceRecognition {
         activeUsers.delete(userId);
 
         const textChannel = client.channels.cache.get(session.textId);
-        if (textChannel) {
-            await textChannel.send({
-                embeds: [client.embed().desc(`�� Voice commands disabled for **${session.userName}**.`)],
-            }).catch(() => null);
-        }
+        textChannel?.send({
+            embeds: [client.embed().desc(`🎤 Voice commands OFF for **${session.userName}**.`)],
+        }).catch(() => {});
 
-        client.log(`[VoiceRecognition] Stopped for user ${session.userName}`, 'info');
+        client.log(`[Voice] Stopped for ${session.userName}`, 'info');
     };
 }
 
-// Check if user has voice recognition active
+// Exports
 export const isUserVoiceActive = (userId) => activeUsers.has(userId);
-
-// Get user's voice session
-export const getUserVoiceSession = (userId) => activeUsers.get(userId);
-
-// Get all active users
-export const getActiveVoiceUsers = () => Array.from(activeUsers.keys());
-
+export const getUserSession = (userId) => activeUsers.get(userId);
 export default StartVoiceRecognition;

@@ -37,7 +37,7 @@ export default class Play extends Command {
             // Get existing player or create new one
             const player = client.getPlayer(ctx) ||
                 (await client.manager.createPlayer({
-                    deaf: true,
+                    deaf: false,
                     guildId: ctx.guild.id,
                     textId: ctx.channel.id,
                     shardId: ctx.guild.shardId,

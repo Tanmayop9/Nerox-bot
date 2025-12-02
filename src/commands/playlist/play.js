@@ -51,7 +51,7 @@ export default class PlaylistPlay extends Command {
             // Get or create player
             const player = client.getPlayer(ctx) ||
                 (await client.manager.createPlayer({
-                    deaf: true,
+                    deaf: false,
                     guildId: ctx.guild.id,
                     textId: ctx.channel.id,
                     shardId: ctx.guild.shardId,

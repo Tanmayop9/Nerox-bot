@@ -14,7 +14,7 @@ export default class Radio extends Command {
         this.execute = async (client, ctx) => {
             const player = client.getPlayer(ctx) ||
                 (await client.manager.createPlayer({
-                    deaf: true,
+                    deaf: false,
                     guildId: ctx.guild.id,
                     textId: ctx.channel.id,
                     shardId: ctx.guild.shardId,

@@ -15,7 +15,7 @@ export const connect247 = async (client, guildId) => {
     if (!(textChannel?.isTextBased() && voiceChannel?.isVoiceBased()))
         return await client.db.twoFourSeven.delete(guild.id), false;
     await client.manager.createPlayer({
-        deaf: true,
+        deaf: false,
         guildId: guild.id,
         textId: textChannel.id,
         shardId: guild.shardId,

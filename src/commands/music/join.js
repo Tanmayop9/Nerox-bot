@@ -13,7 +13,7 @@ export default class Join extends Command {
                 if (player)
                     await player.destroy().catch(() => null);
                 await client.manager.createPlayer({
-                    deaf: true,
+                    deaf: false,
                     loadBalancer: true,
                     guildId: ctx.guild.id,
                     textId: ctx.channel.id,

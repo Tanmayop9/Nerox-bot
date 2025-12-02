@@ -26,7 +26,7 @@ export default class Search extends Command {
             }
             const player = client.getPlayer(ctx) ||
                 (await client.manager.createPlayer({
-                    deaf: true,
+                    deaf: false,
                     guildId: ctx.guild.id,
                     textId: ctx.channel.id,
                     shardId: ctx.guild.shardId,

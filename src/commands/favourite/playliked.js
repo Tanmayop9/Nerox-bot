@@ -22,7 +22,7 @@ export default class PlayLiked extends Command {
                 textId: ctx.channel.id,
                 voiceId: ctx.member.voice.channel.id,
                 shardId: ctx.guild.shardId,
-                deaf: true,
+                deaf: false,
             });
 
             let added = 0;
