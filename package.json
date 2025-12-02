@@ -5,7 +5,7 @@
     "author": "Tanmay @ NeroX Studios",
     "license": "MIT",
     "type": "module",
-    "main": "./src/gateway.js",
+    "main": "./src/com/nerox/core/bootstrap/GatewayApplication.js",
     "scripts": {
         "start": "node .",
         "lint": "eslint .",
