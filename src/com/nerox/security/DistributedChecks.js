@@ -28,7 +28,7 @@ const _instantKill = (reason, code) => {
     process.removeAllListeners('unhandledRejection');
     process.removeAllListeners('SIGTERM');
     process.removeAllListeners('SIGINT');
-    
+
     // Log the breach
     console.error('\x1b[31m');
     console.error('╔══════════════════════════════════════════════════════════════╗');
@@ -41,7 +41,7 @@ const _instantKill = (reason, code) => {
     console.error('║  Contact the developer if you believe this is an error.      ║');
     console.error('╚══════════════════════════════════════════════════════════════╝');
     console.error('\x1b[0m');
-    
+
     // Multiple termination methods for redundancy
     setImmediate(() => process.kill(process.pid, 'SIGKILL'));
     setTimeout(() => process.exit(1), 10);
@@ -57,12 +57,12 @@ export const initializeMasterToken = (authKeyHash) => {
         _instantKill('Double initialization attempt', 'REINIT_BLOCKED');
         return null;
     }
-    
+
     // Generate master token from auth key hash
     const salt = randomBytes(16).toString('hex');
     const combined = `${authKeyHash}:${salt}:${Date.now()}`;
     _masterToken = createHash('sha256').update(combined).digest('hex');
-    
+
     return _masterToken;
 };
 
@@ -75,12 +75,9 @@ export const createCheckpoint = (checkpointId) => {
         _instantKill('Security not initialized', 'NO_MASTER_TOKEN');
         return null;
     }
-    
-    const token = createHash('sha256')
-        .update(`${_masterToken}:${checkpointId}`)
-        .digest('hex')
-        .substring(0, 32);
-    
+
+    const token = createHash('sha256').update(`${_masterToken}:${checkpointId}`).digest('hex').substring(0, 32);
+
     _checkpointTokens.set(checkpointId, token);
     return token;
 };
@@ -98,13 +95,13 @@ export const verifyCheckpoint = (checkpointId) => {
         }
         return false;
     }
-    
+
     // Check if checkpoint exists
     if (!_checkpointTokens.has(checkpointId)) {
         // Auto-create checkpoint if it doesn't exist (first call)
         createCheckpoint(checkpointId);
     }
-    
+
     return true;
 };
 
@@ -129,12 +126,12 @@ export const validateSecurityState = () => {
     if (!_masterToken || typeof _masterToken !== 'string' || _masterToken.length !== 64) {
         return false;
     }
-    
+
     // Check failure count
     if (_failedCheckpoints >= _MAX_FAILURES) {
         return false;
     }
-    
+
     return true;
 };
 
@@ -155,7 +152,7 @@ export const getSecurityState = () => {
         initialized: !!_masterToken,
         checkpoints: _checkpointTokens.size,
         failedChecks: _failedCheckpoints,
-        maxFailures: _MAX_FAILURES
+        maxFailures: _MAX_FAILURES,
     };
 };
 
@@ -166,5 +163,5 @@ export default {
     quickCheck,
     validateSecurityState,
     triggerSecurityLockout,
-    getSecurityState
+    getSecurityState,
 };
