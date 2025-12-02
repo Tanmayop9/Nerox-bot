@@ -284,7 +284,7 @@ export default class Giveaway extends Command {
     }
 
     async listGiveaways(client, ctx) {
-        const allGiveaways = await client.db.giveaways.entries;
+        const allGiveaways = (await client.db.giveaways.entries) || [];
         const activeGiveaways = allGiveaways.filter(([, g]) => g.guildId === ctx.guild.id && !g.ended);
 
         if (activeGiveaways.length === 0) {

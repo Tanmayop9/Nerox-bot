@@ -55,7 +55,7 @@ export default class ButtonClick {
         }
 
         // Check if user already has an open ticket
-        const existingTickets = await client.db.tickets.entries;
+        const existingTickets = (await client.db.tickets.entries) || [];
         const userTicket = existingTickets.find(
             ([, ticket]) =>
                 ticket.guildId === interaction.guild.id &&
