@@ -13,24 +13,7 @@ import { fileURLToPath } from 'node:url';
 // Load Environment Variables
 config();
 
-// ═══════════════════════════════════════════════════════════════
-// SECURITY SYSTEM - MUST BE INITIALIZED FIRST
-// ═══════════════════════════════════════════════════════════════
-import { initializeSecurity, distributedCheck } from '../../security/SecuritySystem.js';
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const projectRoot = resolve(__dirname, '../../../../..');
-
-// Initialize security system before anything else
-const securityResult = await initializeSecurity({ projectRoot });
-if (!securityResult.success) {
-    console.error('Security initialization failed. Exiting...');
-    process.exit(1);
-}
-
-// Distributed security check point
-distributedCheck('GATEWAY_INIT');
-// ═══════════════════════════════════════════════════════════════
 
 const mainFile = './EngineRunner.js';
 const file = resolve(__dirname, mainFile);

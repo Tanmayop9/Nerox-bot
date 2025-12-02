@@ -144,7 +144,7 @@ export class SupportClient extends Client {
     startGiveawayScheduler() {
         setInterval(async () => {
             try {
-                const allGiveaways = await this.db.giveaways.entries;
+                const allGiveaways = (await this.db.giveaways.entries) || [];
                 const now = Date.now();
 
                 for (const [messageId, giveaway] of allGiveaways) {
