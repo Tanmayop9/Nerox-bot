@@ -5,9 +5,11 @@
     "author": "Tanmay @ NeroX Studios",
     "license": "MIT",
     "type": "module",
-    "main": "./src/com/nerox/core/bootstrap/GatewayApplication.js",
+    "main": "./index.js",
     "scripts": {
-        "start": "node .",
+        "start": "node ./index.js",
+        "start:music": "node ./src/com/nerox/core/bootstrap/GatewayApplication.js",
+        "start:support": "node ./src/com/nerox-support/core/bootstrap/SupportApplication.js",
         "lint": "eslint .",
         "build": "rimraf dist && tsc",
         "format": "prettier --log-level error --write .",
