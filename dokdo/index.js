@@ -189,7 +189,7 @@ var ProcessManager = class {
             ? `${this.splitted[this.page - 1]}`
             : `${codeBlock.construct(this.splitted[this.page - 1], this.options.lang)}
 
-Page ${this.page}/${this.splitted.length}`;
+📄 Page \`${this.page}\` of \`${this.splitted.length}\``;
     }
     splitContent() {
         const char = [new RegExp(`.{1,${this.limit}}`, 'g'), '\n'];
@@ -739,43 +739,48 @@ var version = '1.0.1';
 // src/commands/main.ts
 async function main(message2, parent2) {
     const intents = new IntentsBitField(parent2.client.options.intents);
-    let summary = `Dokdo v${version}, discord.js \`${djsVersion}\`, \`Node.js ${
-        process.version
-    }\` on \`${process.platform}\`
-Process started at ${DateFormatting.relative(
-        System.processReadyAt()
-    )}, bot was ready at ${DateFormatting.relative(parent2.client.readyAt ?? 0)}.
-`;
-    summary += `
-Using ${System.memory().rss} at this process.
-`;
-    const cache = `${parent2.client.guilds.cache.size} guild(s) and ${parent2.client.users.cache.size} user(s)`;
+    const cache = `\`${parent2.client.guilds.cache.size}\` guilds • \`${parent2.client.users.cache.size}\` users`;
+    const intentStatus = [
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.MessageContent,
+    ]
+        .map((u) => `> ${intents.has(u) ? '✅' : '❌'} \`${GatewayIntentBits[u]}\``)
+        .join('\n');
+
+    const latencyEmoji = parent2.client.ws.ping < 100 ? '🟢' : parent2.client.ws.ping < 200 ? '🟡' : '🔴';
+
+    let summary = `# ⚡ Jishaku Control Panel\n`;
+    summary += `-# Your debugging companion\n\n`;
+
+    summary += `### 📊 System Overview\n`;
+    summary += `> 🔧 **Dokdo** \`v${version}\` • **discord.js** \`${djsVersion}\`\n`;
+    summary += `> 💻 **Node.js** \`${process.version}\` on \`${process.platform}\`\n`;
+    summary += `> 💾 **Memory** \`${System.memory().rss}\` • **PID** \`${process.pid}\`\n\n`;
+
+    summary += `### ⏱️ Uptime\n`;
+    summary += `> 🚀 Process started ${DateFormatting.relative(System.processReadyAt())}\n`;
+    summary += `> ✨ Bot ready ${DateFormatting.relative(parent2.client.readyAt ?? 0)}\n\n`;
+
     if (parent2.client.shard) {
         const guilds = await parent2.client.shard.fetchClientValues('guilds.cache.size').then((r) => {
             const out = r;
             out.reduce((prev, val) => prev + val, 0);
         });
-        summary += `Running on PID ${process.pid} for this client, and running on PID ${process.ppid} for the parent process.
-
-This bot is sharded in ${parent2.client.shard.count} shard(s) and running in ${guilds} guild(s).
-Can see ${cache} in this client.`;
+        summary += `### 🌐 Sharding\n`;
+        summary += `> 📡 \`${parent2.client.shard.count}\` shards • \`${guilds}\` total guilds\n`;
+        summary += `> 👁️ Cached: ${cache}\n\n`;
     } else {
-        summary += `Running on PID ${process.pid}
-
-This bot is not sharded and can see ${cache}.`;
+        summary += `### 🏠 Cache Stats\n`;
+        summary += `> ${cache}\n\n`;
     }
-    summary +=
-        '\n' +
-        join(
-            [GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent].map(
-                (u) => `\`${GatewayIntentBits[u]}\` intent is ${intents.has(u) ? 'enabled' : 'disabled'}`
-            ),
-            ', ',
-            ' and '
-        ) +
-        '.';
-    summary += `
-Average websocket latency: ${parent2.client.ws.ping}ms`;
+
+    summary += `### 🔐 Gateway Intents\n`;
+    summary += intentStatus + `\n\n`;
+
+    summary += `### 📶 Network\n`;
+    summary += `> ${latencyEmoji} WebSocket: \`${parent2.client.ws.ping}ms\``;
+
     message2.reply(summary);
 }
 __name(main, 'main');
@@ -811,12 +816,12 @@ async function exec(message2, parent2) {
     await msg2.addAction(
         [
             {
-                button: new ButtonBuilder2().setStyle(ButtonStyle.Danger).setCustomId('dokdo$prev').setLabel('Prev'),
+                button: new ButtonBuilder2().setStyle(ButtonStyle.Primary).setCustomId('dokdo$prev').setEmoji('◀️'),
                 action: ({ manager }) => manager.previousPage(),
                 requirePage: true,
             },
             {
-                button: new ButtonBuilder2().setStyle(ButtonStyle.Secondary).setCustomId('dokdo$stop').setLabel('Stop'),
+                button: new ButtonBuilder2().setStyle(ButtonStyle.Danger).setCustomId('dokdo$stop').setEmoji('⏹️'),
                 action: async ({ res: res3, manager }) => {
                     res3.stdin.pause();
                     kill(res3);
@@ -826,7 +831,7 @@ async function exec(message2, parent2) {
                 requirePage: false,
             },
             {
-                button: new ButtonBuilder2().setStyle(ButtonStyle.Success).setCustomId('dokdo$next').setLabel('Next'),
+                button: new ButtonBuilder2().setStyle(ButtonStyle.Primary).setCustomId('dokdo$next').setEmoji('▶️'),
                 action: ({ manager }) => manager.nextPage(),
                 requirePage: true,
             },
@@ -929,17 +934,17 @@ async function js(message, parent) {
     await msg.init();
     await msg.addAction([
         {
-            button: new ButtonBuilder3().setStyle(ButtonStyle2.Danger).setCustomId('dokdo$prev').setLabel('Prev'),
+            button: new ButtonBuilder3().setStyle(ButtonStyle2.Primary).setCustomId('dokdo$prev').setEmoji('◀️'),
             action: ({ manager }) => manager.previousPage(),
             requirePage: true,
         },
         {
-            button: new ButtonBuilder3().setStyle(ButtonStyle2.Secondary).setCustomId('dokdo$stop').setLabel('Stop'),
+            button: new ButtonBuilder3().setStyle(ButtonStyle2.Danger).setCustomId('dokdo$stop').setEmoji('⏹️'),
             action: ({ manager }) => manager.destroy(),
             requirePage: true,
         },
         {
-            button: new ButtonBuilder3().setStyle(ButtonStyle2.Success).setCustomId('dokdo$next').setLabel('Next'),
+            button: new ButtonBuilder3().setStyle(ButtonStyle2.Primary).setCustomId('dokdo$next').setEmoji('▶️'),
             action: ({ manager }) => manager.nextPage(),
             requirePage: true,
         },
@@ -1000,17 +1005,17 @@ ${inspect(value, {
     await msg2.init();
     await msg2.addAction([
         {
-            button: new ButtonBuilder4().setStyle(ButtonStyle3.Primary).setCustomId('dokdo$prev').setLabel('Prev'),
+            button: new ButtonBuilder4().setStyle(ButtonStyle3.Primary).setCustomId('dokdo$prev').setEmoji('◀️'),
             action: ({ manager }) => manager.previousPage(),
             requirePage: true,
         },
         {
-            button: new ButtonBuilder4().setStyle(ButtonStyle3.Secondary).setCustomId('dokdo$stop').setLabel('Stop'),
+            button: new ButtonBuilder4().setStyle(ButtonStyle3.Danger).setCustomId('dokdo$stop').setEmoji('⏹️'),
             action: ({ manager }) => manager.destroy(),
             requirePage: true,
         },
         {
-            button: new ButtonBuilder4().setStyle(ButtonStyle3.Success).setCustomId('dokdo$next').setLabel('Next'),
+            button: new ButtonBuilder4().setStyle(ButtonStyle3.Primary).setCustomId('dokdo$next').setEmoji('▶️'),
             action: ({ manager }) => manager.nextPage(),
             requirePage: true,
         },
@@ -1056,17 +1061,17 @@ ${table({
     await msg.init();
     await msg.addAction([
         {
-            button: new ButtonBuilder5().setStyle(ButtonStyle4.Danger).setCustomId('dokdo$prev').setLabel('Prev'),
+            button: new ButtonBuilder5().setStyle(ButtonStyle4.Primary).setCustomId('dokdo$prev').setEmoji('◀️'),
             action: ({ manager }) => manager.previousPage(),
             requirePage: true,
         },
         {
-            button: new ButtonBuilder5().setStyle(ButtonStyle4.Secondary).setCustomId('dokdo$stop').setLabel('Stop'),
+            button: new ButtonBuilder5().setStyle(ButtonStyle4.Danger).setCustomId('dokdo$stop').setEmoji('⏹️'),
             action: ({ manager }) => manager.destroy(),
             requirePage: true,
         },
         {
-            button: new ButtonBuilder5().setStyle(ButtonStyle4.Success).setCustomId('dokdo$next').setLabel('Next'),
+            button: new ButtonBuilder5().setStyle(ButtonStyle4.Primary).setCustomId('dokdo$next').setEmoji('▶️'),
             action: ({ manager }) => manager.nextPage(),
             requirePage: true,
         },
@@ -1106,17 +1111,17 @@ async function curl(message2, parent2) {
     await msg2.init();
     await msg2.addAction([
         {
-            button: new ButtonBuilder6().setStyle(ButtonStyle5.Danger).setCustomId('dokdo$prev').setLabel('Prev'),
+            button: new ButtonBuilder6().setStyle(ButtonStyle5.Primary).setCustomId('dokdo$prev').setEmoji('◀️'),
             action: ({ manager }) => manager.previousPage(),
             requirePage: true,
         },
         {
-            button: new ButtonBuilder6().setStyle(ButtonStyle5.Secondary).setCustomId('dokdo$stop').setLabel('Stop'),
+            button: new ButtonBuilder6().setStyle(ButtonStyle5.Danger).setCustomId('dokdo$stop').setEmoji('⏹️'),
             action: ({ manager }) => manager.destroy(),
             requirePage: true,
         },
         {
-            button: new ButtonBuilder6().setStyle(ButtonStyle5.Success).setCustomId('dokdo$next').setLabel('Next'),
+            button: new ButtonBuilder6().setStyle(ButtonStyle5.Primary).setCustomId('dokdo$next').setEmoji('▶️'),
             action: ({ manager }) => manager.nextPage(),
             requirePage: true,
         },
@@ -1147,20 +1152,17 @@ async function cat(message2, parent2) {
         await msg2.init();
         await msg2.addAction([
             {
-                button: new ButtonBuilder7().setStyle(ButtonStyle6.Danger).setCustomId('dokdo$prev').setLabel('Prev'),
+                button: new ButtonBuilder7().setStyle(ButtonStyle6.Primary).setCustomId('dokdo$prev').setEmoji('◀️'),
                 action: ({ manager }) => manager.previousPage(),
                 requirePage: true,
             },
             {
-                button: new ButtonBuilder7()
-                    .setStyle(ButtonStyle6.Secondary)
-                    .setCustomId('dokdo$stop')
-                    .setLabel('Stop'),
+                button: new ButtonBuilder7().setStyle(ButtonStyle6.Danger).setCustomId('dokdo$stop').setEmoji('⏹️'),
                 action: ({ manager }) => manager.destroy(),
                 requirePage: true,
             },
             {
-                button: new ButtonBuilder7().setStyle(ButtonStyle6.Primary).setCustomId('dokdo$next').setLabel('Next'),
+                button: new ButtonBuilder7().setStyle(ButtonStyle6.Primary).setCustomId('dokdo$next').setEmoji('▶️'),
                 action: ({ manager }) => manager.nextPage(),
                 requirePage: true,
             },

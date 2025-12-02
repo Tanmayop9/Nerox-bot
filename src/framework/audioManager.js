@@ -14,7 +14,12 @@ import spotify from 'kazagumo-spotify';
 import { Kazagumo, Plugins } from 'kazagumo';
 import { autoplay } from '../utilities/autoPlayHandler.js';
 import { NeroxManager } from '../soundengine/exports.js';
-import { isLavalinkAvailable, createBackupPlayer, searchTrack, getBackupPlayer } from '../streambackup/fallbackAudioProvider.js';
+import {
+    isLavalinkAvailable,
+    createBackupPlayer,
+    searchTrack,
+    getBackupPlayer,
+} from '../streambackup/fallbackAudioProvider.js';
 
 // Streaming method enum
 export const StreamingMethod = {
