@@ -39,8 +39,16 @@ export default class PlayerStart {
                         client.button().secondary(`playEmbedButton_${player.guildId}_stop`, '', client.emoji.stop),
                     ]),
                     new ActionRowBuilder().addComponents([
-                        client.button()[player.data?.get('autoplayStatus') ? 'success' : 'secondary'](`playEmbedButton_${player.guildId}_autoplay`, '', client.emoji.autoplay),
-                        client.button()[isLiked ? 'success' : 'secondary'](`playEmbedButton_${player.guildId}_like`, '', client.emoji.heart),
+                        client
+                            .button()
+                            [
+                                player.data?.get('autoplayStatus') ? 'success' : 'secondary'
+                            ](`playEmbedButton_${player.guildId}_autoplay`, '', client.emoji.autoplay),
+                        client
+                            .button()
+                            [
+                                isLiked ? 'success' : 'secondary'
+                            ](`playEmbedButton_${player.guildId}_like`, '', client.emoji.heart),
                     ]),
                 ],
             });

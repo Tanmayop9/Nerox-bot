@@ -14,7 +14,7 @@ export default class JSKRTT extends Command {
         const loadingEmbed = client
             .embed()
             .title(`${client.emoji.info} Calculating Latency...`)
-            .desc('Please wait while we measure the bot\'s response time.')
+            .desc("Please wait while we measure the bot's response time.")
             .footer({
                 text: `Requested by ${ctx.author.username}`,
                 iconURL: ctx.author.displayAvatarURL(),

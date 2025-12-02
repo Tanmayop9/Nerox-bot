@@ -33,8 +33,14 @@ export const updatePlayerButtons = async (client, player) => {
     ]);
 
     const row2 = new ActionRowBuilder().addComponents([
-        client.button()[autoplayStatus ? 'success' : 'secondary'](`playEmbedButton_${player.guildId}_autoplay`, '', client.emoji.autoplay),
-        client.button()[isLiked ? 'success' : 'secondary'](`playEmbedButton_${player.guildId}_like`, '', client.emoji.heart),
+        client
+            .button()
+            [
+                autoplayStatus ? 'success' : 'secondary'
+            ](`playEmbedButton_${player.guildId}_autoplay`, '', client.emoji.autoplay),
+        client
+            .button()
+            [isLiked ? 'success' : 'secondary'](`playEmbedButton_${player.guildId}_like`, '', client.emoji.heart),
     ]);
 
     await playEmbed
