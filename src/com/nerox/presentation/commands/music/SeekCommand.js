@@ -1,6 +1,6 @@
 import { filter } from '../../../infrastructure/handlers/ContentFilter.js';
-import { toMs } from '../../utilities/ms/toMs.js';
-import { fromMs } from '../../utilities/ms/fromMs.js';
+import { toMs } from '../../../services/converters/ToMsConverter.js';
+import { fromMs } from '../../../services/converters/FromMsConverter.js';
 import { progressBar } from '../../../infrastructure/handlers/ProgressIndicator.js';
 import { Command } from '../../../core/client/abstracts/CommandBase.js';
 import { ActionRowBuilder } from 'discord.js';

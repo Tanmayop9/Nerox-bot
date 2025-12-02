@@ -1,5 +1,5 @@
 import { Collection } from 'discord.js';
-import { fromMs } from '../ms/fromMs.js';
+import { fromMs } from '../converters/FromMsConverter.js';
 import { limited } from '../../infrastructure/handlers/RateLimitHandler.js';
 import { RateLimitManager } from '@sapphire/ratelimits';
 const cooldownRateLimitManager = new RateLimitManager(5000);

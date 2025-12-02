@@ -5,7 +5,7 @@
  */
 
 import { Command } from '../../../core/client/abstracts/CommandBase.js';
-import { updatePlayerButtons } from '../../utilities/playerUIUpdater.js';
+import { updatePlayerButtons } from '../../../services/PlayerUIUpdaterService.js';
 
 export default class Pause extends Command {
     constructor() {

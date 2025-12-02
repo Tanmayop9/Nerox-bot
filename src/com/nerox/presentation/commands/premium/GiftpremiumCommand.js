@@ -4,7 +4,7 @@
  * @description Gift premium to a user (Owner only)
  */
 
-import { Command } from '../../core/abstract/command.js';
+import { Command } from '../../../core/client/abstracts/CommandBase.js';
 
 export default class GiftPremium extends Command {
     constructor() {
