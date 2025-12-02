@@ -1,5 +1,5 @@
 /**
- * @nerox v1.0.0
+ * @nerox v4.0.0
  * @author Tanmay
  * @description Advanced Music Manager with multi-platform support
  */

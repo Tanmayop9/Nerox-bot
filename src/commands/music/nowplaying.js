@@ -1,5 +1,5 @@
 /**
- * @nerox v1.0.0
+ * @nerox v4.0.0
  * @author Tanmay
  * @description Now Playing Command - Shows current track information
  */

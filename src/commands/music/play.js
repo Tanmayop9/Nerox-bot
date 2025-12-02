@@ -1,5 +1,5 @@
 /**
- * @nerox v1.0.0
+ * @nerox v4.0.0
  * @author Tanmay
  * @description Advanced Play Command with intelligent queue management
  */

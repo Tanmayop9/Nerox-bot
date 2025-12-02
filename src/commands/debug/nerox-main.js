@@ -35,7 +35,7 @@ export default class JSKMain extends Command {
         const loadTime = (endTime - startTime).toFixed(3);
 
         const embed = client.embed()
-            .title(`${info} Evangelion v1.0.0`)
+            .title(`${info} Nerox v4.0.0`)
             .desc(
                 `**${info1} Platform:** \`${platform}\`\n` +
                 `**${info1} Process ID:** \`${processId}\` | **Parent PID:** \`${parentProcessId}\`\n\n` +

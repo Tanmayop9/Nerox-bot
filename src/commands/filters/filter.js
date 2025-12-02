@@ -1,7 +1,7 @@
 /**
- * @fuego v1.0.0
- * @author painfuego (www.codes-for.fun)
- * @copyright 2024 1sT - Services | CC BY-NC-SA 4.0
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * 
  */
 import { ActionRowBuilder, StringSelectMenuBuilder, } from 'discord.js';
 import { filter } from '../../utils/filter.js';
