@@ -9,7 +9,7 @@
         "setup": "node server-setup.js"
     },
     "dependencies": {
-        "discord.js": "^14.15.2",
+        "discord.js": "^14.16.3",
         "readline-sync": "^1.4.10"
     },
     "engines": {

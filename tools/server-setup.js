@@ -132,7 +132,7 @@ const roleConfigs = [
 
 // Get user input
 log.info('Enter your Discord Bot Token:');
-const token = readline.question('Token: ', { hideEchoBack: true });
+const token = readline.question('Token: ', { hideEchoBack: true }).trim();
 
 if (!token) {
     log.error('No token provided. Exiting...');
@@ -140,10 +140,11 @@ if (!token) {
 }
 
 log.info('Enter the Server (Guild) ID to setup:');
-const guildId = readline.question('Guild ID: ');
+const guildId = readline.question('Guild ID: ').trim();
 
-if (!guildId) {
-    log.error('No guild ID provided. Exiting...');
+// Validate guild ID format (Discord snowflake: 17-19 digits)
+if (!guildId || !/^\d{17,19}$/.test(guildId)) {
+    log.error('Invalid Guild ID. Must be a 17-19 digit number. Exiting...');
     process.exit(1);
 }
 
@@ -187,13 +188,19 @@ async function setupServer(guild) {
     if (deleteChannels) {
         log.step('Deleting existing channels...');
         const channels = await guild.channels.fetch();
-        for (const [, channel] of channels) {
-            if (channel) {
-                try {
-                    await channel.delete();
-                    log.success(`Deleted channel: ${channel.name}`);
-                } catch (error) {
-                    log.error(`Failed to delete channel ${channel.name}: ${error.message}`);
+        const channelArray = [...channels.values()].filter((c) => c !== null);
+
+        // Delete channels in batches for better performance
+        const batchSize = 5;
+        for (let i = 0; i < channelArray.length; i += batchSize) {
+            const batch = channelArray.slice(i, i + batchSize);
+            const results = await Promise.allSettled(batch.map((channel) => channel.delete().then(() => channel.name)));
+
+            for (const result of results) {
+                if (result.status === 'fulfilled') {
+                    log.success(`Deleted channel: ${result.value}`);
+                } else {
+                    log.error(`Failed to delete channel: ${result.reason?.message || 'Unknown error'}`);
                 }
             }
         }
