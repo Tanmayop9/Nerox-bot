@@ -4,11 +4,11 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const loadCommands = async (client) => {
     let totalCommandCount = 0;
-    for (const category of await readdir(resolve(__dirname, '../commands'))) {
-        for (const file of await readdir(resolve(__dirname, '../commands', category))) {
+    for (const category of await readdir(resolve(__dirname, '../orchestrator'))) {
+        for (const file of await readdir(resolve(__dirname, '../orchestrator', category))) {
             if (!file.endsWith('.js')) continue;
             const command = new (
-                await import(pathToFileURL(resolve(__dirname, '../commands', category, file)).href)
+                await import(pathToFileURL(resolve(__dirname, '../orchestrator', category, file)).href)
             ).default();
             command.category = category.toLowerCase();
             command.name = file.split('.')[0].toLowerCase();

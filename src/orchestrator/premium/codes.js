@@ -5,7 +5,7 @@
  */
 
 import _ from 'lodash';
-import { Command } from '../../classes/abstract/command.js';
+import { Command } from '../../framework/abstract/command.js';
 import { paginator } from '../../toolkit/pageNavigator.js';
 
 export default class ListCodes extends Command {

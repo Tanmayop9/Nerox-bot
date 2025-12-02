@@ -60,7 +60,7 @@ const parseComponent = (component) => {
 export const toMs = (input) => {
     input = String(input);
     if (input.length > 100) {
-        return;
+        return 0;
     }
     const components = input.split(/\s+/);
     let totalMs = 0;

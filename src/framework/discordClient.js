@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { emoji } from '../resources/emoticons.js';
 import format from 'moment-duration-format';
 import { josh } from '../utilities/databaseProvider.js';
-import { log } from '../logger.js';
+import { log } from '../chronicle.js';
 import { dirname, resolve } from 'node:path';
 import { ExtendedEmbedBuilder } from './embedBuilder.js';
 import { ExtendedButtonBuilder } from './buttonFactory.js';
@@ -19,7 +19,7 @@ import { OAuth2Scopes } from 'discord-api-types/v10';
 import { readyEvent } from '../utilities/bootSequence.js';
 import { Client, Partials, Collection, GatewayIntentBits, WebhookClient } from 'discord.js';
 import { ClusterClient, getInfo } from 'discord-hybrid-sharding';
-import { config } from './config.js';
+import { config } from './configuration.js';
 
 format(moment);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -118,7 +118,7 @@ export class ExtendedClient extends Client {
 
         // Command collections
         this.commands = new Collection();
-        this.categories = readdirSync(resolve(__dirname, '../commands'));
+        this.categories = readdirSync(resolve(__dirname, '../orchestrator'));
         this.cooldowns = new Collection();
 
         // Gateway connection

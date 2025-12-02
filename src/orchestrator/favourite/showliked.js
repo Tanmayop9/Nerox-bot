@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { paginator } from '../../toolkit/paginator.js';
+import { paginator } from '../../toolkit/pageNavigator.js';
 import { Command } from '../../framework/abstract/command.js';
 
 export default class ShowLiked extends Command {

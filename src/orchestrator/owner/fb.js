@@ -11,7 +11,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { AttachmentBuilder } from 'discord.js';
 import { zipper } from '../../toolkit/archiveCreator.js';
-import { Command } from '../../classes/abstract/command.js';
+import { Command } from '../../framework/abstract/command.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

@@ -3,7 +3,7 @@
  * @author Tanmay @ NeroX Studios
  *
  */
-import { Command } from '../../classes/abstract/command.js';
+import { Command } from '../../framework/abstract/command.js';
 export default class Enhance extends Command {
     constructor() {
         super(...arguments);

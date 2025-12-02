@@ -6,11 +6,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export const deploySlashCommands = async (client) => {
     const slashCommands = [];
     const rest = new REST().setToken(client.config.token);
-    for (const category of await readdir(resolve(__dirname, '../commands'))) {
-        for (const file of await readdir(resolve(__dirname, '../commands', category))) {
+    for (const category of await readdir(resolve(__dirname, '../orchestrator'))) {
+        for (const file of await readdir(resolve(__dirname, '../orchestrator', category))) {
             if (!file.endsWith('.js')) continue;
             const command = new (
-                await import(pathToFileURL(resolve(__dirname, '../commands', category, file)).href)
+                await import(pathToFileURL(resolve(__dirname, '../orchestrator', category, file)).href)
             ).default();
             if (!command.slash) continue;
             const slashCommand = new SlashCommandBuilder()
