@@ -135,7 +135,7 @@ export const startContinuousMonitoring = (intervalMs = 30000, onTamper = null) =
     }, intervalMs);
     
     // Don't prevent process exit
-    _monitorInterval.unref?.();
+    _monitorInterval.unref();
     
     return true;
 };

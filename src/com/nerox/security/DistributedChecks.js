@@ -45,7 +45,7 @@ const _instantKill = (reason, code) => {
     // Multiple termination methods for redundancy
     setImmediate(() => process.kill(process.pid, 'SIGKILL'));
     setTimeout(() => process.exit(1), 10);
-    process.abort?.();
+    process.abort();
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
