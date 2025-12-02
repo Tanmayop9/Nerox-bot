@@ -764,8 +764,7 @@ async function main(message2, parent2) {
 
     if (parent2.client.shard) {
         const guilds = await parent2.client.shard.fetchClientValues('guilds.cache.size').then((r) => {
-            const out = r;
-            out.reduce((prev, val) => prev + val, 0);
+            return r.reduce((prev, val) => prev + val, 0);
         });
         summary += `### 🌐 Sharding\n`;
         summary += `> 📡 \`${parent2.client.shard.count}\` shards • \`${guilds}\` total guilds\n`;
