@@ -49,13 +49,15 @@ export default class Warn extends Command {
         await client.db.warns.set(`${ctx.guild.id}-${member.id}`, userWarns);
 
         // Log to database
-        await client.db.modLogs.push(ctx.guild.id, {
+        const existingLogs = (await client.db.modLogs.get(ctx.guild.id)) || [];
+        existingLogs.push({
             type: 'warn',
             userId: member.id,
             moderatorId: ctx.author.id,
             reason,
             timestamp: Date.now(),
         });
+        await client.db.modLogs.set(ctx.guild.id, existingLogs);
 
         // Try to DM the user
         await member

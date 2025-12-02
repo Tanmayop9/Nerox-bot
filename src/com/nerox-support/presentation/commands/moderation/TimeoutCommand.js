@@ -81,7 +81,8 @@ export default class Timeout extends Command {
             await member.timeout(durationMs, `${ctx.author.tag}: ${reason}`);
 
             // Log to database
-            await client.db.modLogs.push(ctx.guild.id, {
+            const existingLogs = (await client.db.modLogs.get(ctx.guild.id)) || [];
+            existingLogs.push({
                 type: 'timeout',
                 userId: member.id,
                 moderatorId: ctx.author.id,
@@ -89,6 +90,7 @@ export default class Timeout extends Command {
                 reason,
                 timestamp: Date.now(),
             });
+            await client.db.modLogs.set(ctx.guild.id, existingLogs);
 
             await ctx.reply({
                 embeds: [

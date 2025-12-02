@@ -65,13 +65,15 @@ export default class Ban extends Command {
             await ctx.guild.members.ban(user.id, { reason: `${ctx.author.tag}: ${reason}` });
 
             // Log to database
-            await client.db.modLogs.push(ctx.guild.id, {
+            const existingLogs = (await client.db.modLogs.get(ctx.guild.id)) || [];
+            existingLogs.push({
                 type: 'ban',
                 userId: user.id,
                 moderatorId: ctx.author.id,
                 reason,
                 timestamp: Date.now(),
             });
+            await client.db.modLogs.set(ctx.guild.id, existingLogs);
 
             await ctx.reply({
                 embeds: [
