@@ -4,6 +4,9 @@
  * @description NeroxQueue - Queue management for NeroxPlayer
  */
 
+// Configuration constants
+const MAX_PREVIOUS_TRACKS = 50;
+
 export class NeroxQueue extends Array {
     constructor() {
         super();
@@ -67,8 +70,8 @@ export class NeroxQueue extends Array {
     next() {
         if (this.current) {
             this.previous.push(this.current);
-            // Keep only last 50 previous tracks
-            if (this.previous.length > 50) {
+            // Keep only last N previous tracks
+            if (this.previous.length > MAX_PREVIOUS_TRACKS) {
                 this.previous.shift();
             }
         }

@@ -34,10 +34,17 @@ export class Manager {
             const hasLavalink = process.env.LAVALINK_URL && process.env.LAVALINK_AUTH;
 
             // Determine streaming method
+            // Options: 'lavalink', 'nerox', 'auto' (default)
+            // 'auto' = Uses Lavalink if configured, falls back to NeroxPlayer
             const streamingMethod = process.env.STREAMING_METHOD || 'auto';
             client.streamingMethod = streamingMethod;
 
-            if (!hasLavalink) {
+            // Log streaming method decision
+            if (streamingMethod === 'nerox') {
+                client.log('Streaming method set to NeroxPlayer (forced)', 'info');
+            } else if (streamingMethod === 'lavalink' && !hasLavalink) {
+                client.log('Lavalink forced but not configured - falling back to NeroxPlayer', 'warn');
+            } else if (!hasLavalink) {
                 client.log('Lavalink not configured - using NeroxPlayer as primary', 'warn');
             }
 
@@ -46,7 +53,7 @@ export class Manager {
                 client.log('Spotify credentials missing - Spotify support disabled', 'warn');
             }
 
-            // Initialize NeroxPlayer (Custom wrapper - always available)
+            // Initialize NeroxPlayer (Custom wrapper - always available as fallback)
             const neroxManager = new NeroxManager(client);
             client.neroxPlayer = neroxManager;
 

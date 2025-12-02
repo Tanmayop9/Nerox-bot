@@ -86,11 +86,15 @@ export class NeroxManager extends EventEmitter {
     }
 
     /**
-     * Search for tracks (static method for searching without player)
+     * Search for tracks without requiring a player
+     * Uses a temporary search-only player instance
      */
     async search(query, options = {}) {
-        const tempPlayer = new NeroxPlayer(this, { guildId: 'temp' });
-        return await tempPlayer.search(query, options);
+        const searchId = `search_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const tempPlayer = new NeroxPlayer(this, { guildId: searchId });
+        const result = await tempPlayer.search(query, options);
+        // Cleanup - no need to destroy as it's not connected
+        return result;
     }
 }
 

@@ -27,7 +27,7 @@ export default class Queue extends Command {
 
             const current = player.queue.current;
             const previous = player.queue.previous || [];
-            const upcoming = [...player.queue] || [];
+            const upcoming = [...(player.queue || [])];
 
             // Build queue entries
             const entries = [];

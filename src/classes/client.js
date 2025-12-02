@@ -185,7 +185,7 @@ export class ExtendedClient extends Client {
             if (url && url.startsWith('https://discord.com/api/webhooks/')) {
                 try {
                     this.webhooks[name] = new WebhookClient({ url });
-                } catch (e) {
+                } catch (_e) {
                     this.log(`Failed to initialize webhook: ${name}`, 'error');
                 }
             }
