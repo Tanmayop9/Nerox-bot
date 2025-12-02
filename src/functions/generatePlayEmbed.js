@@ -1,19 +1,29 @@
+/**
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Minimalist now playing embed generator
+ */
 
 export const generatePlayEmbed = (client, player) => {
     const track = player.queue.current;
-    if (!track)
-        return client.embed().desc('Lavalink could not provide track details.');
-    const { title, author } = track;
-    const duration = track.isStream ? `◉ LiVE STREAM` : client.formatDuration(track.length || 369);
-    const embed = client
-        .embed()
-        .title(title.substring(0, 40))
-        .desc(`${client.emoji.info} Duration: ${duration}\n` + `${client.emoji.info} Author: ${author}`)
-      
+    
+    if (!track) {
+        return client.embed().desc('`No track information available`');
+    }
+
+    const { title, author, uri } = track;
+    const duration = track.isStream ? '`LIVE`' : `\`${client.formatDuration(track.length || 0)}\``;
+    const position = player.queue.previous?.length || 0;
+    const queueSize = player.queue.length || 0;
+
+    // Minimalist embed design
+    return client.embed()
+        .desc(
+            `**${title.substring(0, 50)}${title.length > 50 ? '...' : ''}**\n` +
+            `${author}\n\n` +
+            `${duration} · Queue: ${queueSize} tracks`
+        )
         .footer({
-        text: `Track requested by ${track.requester.displayName}`,
-    });
-    // if (track.thumbnail) embed.img(track.thumbnail?.replace('hqdefault', 'maxresdefault'));
-    return embed;
+            text: `${track.requester?.displayName || 'Unknown'}`,
+        });
 };
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */

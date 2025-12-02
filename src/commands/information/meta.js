@@ -1,51 +1,50 @@
 /**
- * @nerox v1.0.0
- * @author Tanmay
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Codebase statistics with paragraph-style UI
  */
+
 import _ from 'lodash';
 import { Command } from '../../classes/abstract/command.js';
 import { paginator } from '../../utils/paginator.js';
 import { getCodeStats } from '../../utils/codestats.js';
 
 export default class CodeStats extends Command {
-	constructor() {
-		super(...arguments);
-		this.dev = true;
-		this.aliases = ['codestats', 'cs', 'codeinfo'];
-		this.description = 'View full details about the bot\'s codebase.';
-		this.execute = async (client, ctx) => {
-			const msg = await ctx.reply({
-				content: `collecting code statistics, please wait...`,
-			});
+    constructor() {
+        super(...arguments);
+        this.dev = true;
+        this.aliases = ['codestats', 'cs', 'codeinfo'];
+        this.description = 'View codebase statistics';
 
-			const stats = await getCodeStats();
+        this.execute = async (client, ctx) => {
+            const msg = await ctx.reply({
+                embeds: [client.embed().desc('Analyzing codebase...')],
+            });
 
-			const info = [
-				`• **Total Files:** \`${stats.files}\``,
-				`• **Total Directories:** \`${stats.directories}\``,
-				`• **Total Lines:** \`${stats.lines}\``,
-				`• **Characters:** \`${stats.characters.toLocaleString()}\``,
-				`• **Whitespaces:** \`${stats.whitespaces}\``,
-			];
+            const stats = await getCodeStats();
 
-			const embeds = [
-				client.embed()
-					.setTitle(`Codebase Statistics`)
-					.desc(info.join('\n')),
-			];
+            const mainEmbed = client.embed()
+                .desc(
+                    `The Nerox codebase consists of **${stats.files}** files across **${stats.directories}** directories. ` +
+                    `There are **${stats.lines.toLocaleString()}** lines of code with **${stats.characters.toLocaleString()}** characters. ` +
+                    `The project structure includes **${stats.whitespaces.toLocaleString()}** whitespace characters for formatting.`
+                )
+                .footer({ text: 'Nerox v4.0.0 Codebase' });
 
-			const treeChunks = _.chunk(stats.tree, 20);
-			for (const chunk of treeChunks) {
-				embeds.push(
-					client.embed()
-						.setTitle(` Code Tree`)
-						.desc(`\`\`\`bash\n${chunk.join('\n')}\n\`\`\``)
-				);
-			}
+            const embeds = [mainEmbed];
 
-			await paginator(ctx, embeds);
-			await msg.delete().catch(() => {});
-		};
-	}
+            // Add tree pages
+            const treeChunks = _.chunk(stats.tree, 25);
+            treeChunks.forEach((chunk, i) => {
+                embeds.push(
+                    client.embed()
+                        .desc(`\`\`\`\n${chunk.join('\n')}\n\`\`\``)
+                        .footer({ text: `File Tree • Page ${i + 2}/${treeChunks.length + 1}` })
+                );
+            });
+
+            await msg.delete().catch(() => {});
+            await paginator(ctx, embeds);
+        };
+    }
 }
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */

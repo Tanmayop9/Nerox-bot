@@ -1,3 +1,9 @@
+/**
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Cluster Manager for multi-shard support
+ */
+
 import { config } from 'dotenv';
 import { log } from './logger.js';
 import { availableParallelism } from 'node:os';
@@ -24,7 +30,7 @@ const clusterManager = new ClusterManager(file, {
     token: process.env.DISCORD_TOKEN,
 });
 
-// Heartbeat Manager
+// Heartbeat Manager for cluster health monitoring
 clusterManager.extend(new HeartbeatManager({
     interval: 2000,
     maxMissedHeartbeats: 5,
@@ -33,4 +39,4 @@ clusterManager.extend(new HeartbeatManager({
 // Spawn Clusters
 clusterManager.spawn({ timeout: -1 });
 
-log("Bot started successfully!", "info");
+log("Nerox v4.0.0 starting...", "info");

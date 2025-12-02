@@ -1,27 +1,36 @@
+/**
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Skip to next track
+ */
+
 import { Command } from '../../classes/abstract/command.js';
+
 export default class Skip extends Command {
     constructor() {
         super(...arguments);
         this.playing = true;
         this.inSameVC = true;
-        this.aliases = ['next'];
-        this.description = 'Plays next song';
+        this.aliases = ['next', 's'];
+        this.description = 'Skip to the next track';
+
         this.execute = async (client, ctx) => {
             const player = client.getPlayer(ctx);
-            if (player.queue.length == 0 && !player.data.get('autoplayStatus')) {
-                await ctx.reply({
-                    embeds: [
-                        client.embed().desc(`${client.emoji.cross} No more songs left in the queue to skip.`),
-                    ],
+
+            if (player.queue.length === 0 && !player.data.get('autoplayStatus')) {
+                return await ctx.reply({
+                    embeds: [client.embed().desc('`No more tracks in queue`')],
                 });
-                return;
             }
-            const skipTrack = player.queue.current;
+
+            const skipped = player.queue.current;
             await player.shoukaku.stopTrack();
+
             await ctx.reply({
-                embeds: [client.embed().desc(`${client.emoji.check} Skipped ${skipTrack.title}.`)],
+                embeds: [
+                    client.embed().desc(`Skipped **${skipped.title.substring(0, 40)}**`)
+                ],
             });
         };
     }
 }
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */

@@ -1,4 +1,11 @@
+/**
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Adjust player volume
+ */
+
 import { Command } from '../../classes/abstract/command.js';
+
 export default class Volume extends Command {
     constructor() {
         super(...arguments);
@@ -8,32 +15,36 @@ export default class Volume extends Command {
         this.description = 'Adjust player volume';
         this.options = [
             {
-                name: 'volume',
+                name: 'level',
                 required: false,
                 opType: 'string',
-                description: 'volume ( 150 > V > 0)',
+                description: 'Volume level (1-150)',
             },
         ];
+
         this.execute = async (client, ctx, args) => {
             const player = client.getPlayer(ctx);
-            const volume = Math.ceil(parseInt(args[0])) || player.volume;
-            if (volume > 150 || volume < 1) {
-                await ctx.reply({
-                    embeds: [
-                        client
-                            .embed()
-                            .desc(`${client.emoji.cross} Volume must be greater than \`0\` and lesser than \`150\`.`),
-                    ],
+            
+            // Show current volume if no argument
+            if (!args.length) {
+                return await ctx.reply({
+                    embeds: [client.embed().desc(`Volume: \`${player.volume}%\``)],
                 });
-                return;
             }
+
+            const volume = Math.ceil(parseInt(args[0]));
+
+            if (isNaN(volume) || volume < 1 || volume > 150) {
+                return await ctx.reply({
+                    embeds: [client.embed().desc('`Volume must be between 1-150`')],
+                });
+            }
+
             player.setVolume(volume);
+
             await ctx.reply({
-                embeds: [
-                    client.embed().desc(`${client.emoji.check} Current volume for player is \`${volume}%\`.`),
-                ],
+                embeds: [client.embed().desc(`Volume: \`${volume}%\``)],
             });
         };
     }
 }
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */

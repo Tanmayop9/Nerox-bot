@@ -1,3 +1,9 @@
+/**
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Extended Discord Client with advanced features
+ */
+
 import moment from "moment";
 import { readdirSync } from "fs";
 import { Manager } from "./manager.js";
@@ -13,7 +19,7 @@ import { OAuth2Scopes } from "discord-api-types/v10";
 import { readyEvent } from "../functions/readyEvent.js";
 import { Client, Partials, Collection, GatewayIntentBits, WebhookClient } from "discord.js";
 import { ClusterClient, getInfo } from "discord-hybrid-sharding";
-import { config } from "./config.js";  // 🔥 Now loads config directly
+import { config } from "./config.js";
 
 format(moment);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -63,18 +69,22 @@ this.db = {
   botmods: josh("botmods"),
   giveaway: josh("giveaway"),
   mc: josh("msgCount"),
-  botstaff: josh("botstaff"), // Bot premium users
+  botstaff: josh("botstaff"),
   liked: josh("liked"),
   redeemCode: josh("redeemCode"),
-  serverstaff: josh("serverstaff"), // Server premium 
+  serverstaff: josh("serverstaff"),
   prefix: josh("prefix"),
   ignore: josh("ignore"),
   bypass: josh("bypass"),
   blacklist: josh("blacklist"),
+  playlists: josh("playlists"),
   
   stats: {
     songsPlayed: josh("stats/songsPlayed"),  
-    commandsUsed: josh("stats/commandsUsed"),},  
+    commandsUsed: josh("stats/commandsUsed"),
+    friends: josh("stats/friends"),
+    linkfireStreaks: josh("stats/linkfireStreaks"),
+  },
   twoFourSeven: josh("twoFourSeven"),
 };
 

@@ -1,9 +1,9 @@
 {
   "name": "nerox",
-  "version": "1",
-  "description": "A music bot",
-  "author": "tanmay",
-  "license": "no rn",
+  "version": "4.0.0",
+  "description": "Advanced Discord Music Bot with Multi-Platform Support",
+  "author": "Tanmay @ NeroX Studios",
+  "license": "MIT",
   "type": "module",
   "main": "./src/index.js",
   "scripts": {
@@ -71,14 +71,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/PAINFUEG0/Fuego"
+    "url": "https://github.com/Tanmayop9/Nerox-bot"
   },
-  "homepage": "https://github.com/PAINFUEG0/Fuego",
+  "homepage": "https://github.com/Tanmayop9/Nerox-bot",
   "bugs": {
-    "email": "support@codes-for.fun.com",
-    "url": "https://github.com/PAINFUEG0/Fuego/issues"
-  },
-  "checksum": "21_N-2K021-ST",
-  "contact_email": "mailto:support@codes-for.fun",
-  "intended_use": "For educational and demonstration purposes."
+    "url": "https://github.com/Tanmayop9/Nerox-bot/issues"
+  }
 }

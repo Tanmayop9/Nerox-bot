@@ -1,7 +1,7 @@
 /**
- * @nerox v1.0.0
- * @author Tanmay
- * @copyright 2024 Nerox - Services
+ * @nerox v4.0.0
+ * @author Tanmay @ NeroX Studios
+ * @description Main bot entry point
  */
 
 import { loadAntiCrash } from './utils/anticrash.js';

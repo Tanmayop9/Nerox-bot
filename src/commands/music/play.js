@@ -1,27 +1,40 @@
+/**
+ * @nerox v1.0.0
+ * @author Tanmay
+ * @description Advanced Play Command with intelligent queue management
+ */
+
 import { Command } from '../../classes/abstract/command.js';
+
 export default class Play extends Command {
     constructor() {
         super(...arguments);
         this.inSameVC = true;
         this.aliases = ['p'];
         this.usage = '<query>';
-        this.description = 'Play music using query';
+        this.description = 'Play music using a search query or URL';
         this.options = [
             {
                 name: 'query',
                 required: true,
                 opType: 'string',
                 isAutoComplete: true,
-                description: 'what would you like to listen to ?',
+                description: 'Song name, URL, or playlist link',
             },
         ];
+
         this.execute = async (client, ctx, args) => {
+            // Validate query input
             if (!args.length) {
-                await ctx.reply({
-                    embeds: [client.embed().desc(`Aww babygirl please provide a query.`)],
+                return await ctx.reply({
+                    embeds: [
+                        client.embed()
+                            .desc(`${client.emoji.cross} Please provide a song name or URL to play.`)
+                    ],
                 });
-                return;
             }
+
+            // Get existing player or create new one
             const player = client.getPlayer(ctx) ||
                 (await client.manager.createPlayer({
                     deaf: true,
@@ -30,51 +43,73 @@ export default class Play extends Command {
                     shardId: ctx.guild.shardId,
                     voiceId: ctx.member.voice.channel.id,
                 }));
+
+            // Show searching message
             const waitEmbed = await ctx.reply({
                 embeds: [
-                    client
-                        .embed()
-                        .desc(`${client.emoji.timer} Searching quality music for you babe please wait for few seconds.`),
+                    client.embed()
+                        .desc(`${client.emoji.timer} Searching for your track, please wait...`),
                 ],
             });
+
+            // Search for tracks
             const result = await player.search(args.join(' '), {
                 requester: ctx.author,
             });
+
+            // Handle no results
             if (!result.tracks.length) {
-                await waitEmbed.edit({
-                    embeds: [client.embed().desc(`${client.emoji.cross} No results found.`)],
+                return await waitEmbed.edit({
+                    embeds: [
+                        client.embed()
+                            .desc(`${client.emoji.cross} No results found for your query.`)
+                    ],
                 });
-                return;
             }
+
             const tracks = result.tracks;
-            if (result.type === 'PLAYLIST')
+            let addedCount = 0;
+
+            // Handle playlist
+            if (result.type === 'PLAYLIST') {
                 for (const track of tracks) {
-                    if (track.length && track.length < 30000)
-                        continue;
+                    // Skip tracks shorter than 30 seconds
+                    if (track.length && track.length < 30000) continue;
                     player.queue.add(track);
+                    addedCount++;
                 }
-            else {
-                if (tracks[0].length < 30000 && !client.owners.includes(ctx.author.id)) {
-                    await waitEmbed.edit({
+            } else {
+                // Handle single track
+                const track = tracks[0];
+                
+                // Validate track duration (except for bot owners)
+                if (track.length < 30000 && !client.owners.includes(ctx.author.id)) {
+                    return await waitEmbed.edit({
                         embeds: [
-                            client
-                                .embed()
-                                .desc(`${client.emoji.cross} Song/(s) of duration less than 30s cannot be played.`),
+                            client.embed()
+                                .desc(`${client.emoji.cross} Tracks shorter than 30 seconds cannot be played.`),
                         ],
                     });
-                    return;
                 }
-                player.queue.add(tracks[0]);
+                
+                player.queue.add(track);
+                addedCount = 1;
             }
-            const description = result.type === 'PLAYLIST' ?
-                `${client.emoji.check} Added ${tracks.length} from ${result.playlistName} to queue.\nEnjoy Music w me girlie`
-                : `${client.emoji.check} Added  ${tracks[0].title} to queue.\nEnjoy Music w me girlie`;
-            if (!player.playing && !player.paused)
+
+            // Build success message
+            const description = result.type === 'PLAYLIST'
+                ? `${client.emoji.check} Added **${addedCount}** tracks from **${result.playlistName}** to the queue.`
+                : `${client.emoji.check} Added **${tracks[0].title}** to the queue.`;
+
+            // Start playback if not already playing
+            if (!player.playing && !player.paused) {
                 player.play();
+            }
+
+            // Update embed with success message
             await waitEmbed.edit({
                 embeds: [client.embed().desc(description)],
             });
         };
     }
 }
-/**@codeStyle - https://google.github.io/styleguide/tsguide.html */
