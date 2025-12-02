@@ -1,7 +1,7 @@
 /**
  * @nerox v4.0.0
  * @author Tanmay @ NeroX Studios
- * @description Toggle Voice Channel text requests
+ * @description Toggle Voice Recognition for music commands
  */
 
 import { Command } from '../../classes/abstract/command.js';
@@ -10,16 +10,16 @@ export default class VCRequests extends Command {
     constructor() {
         super(...arguments);
         this.name = 'vcrequests';
-        this.aliases = ['vcr', 'voicerequests', 'vctext'];
-        this.description = 'Toggle voice channel text commands';
+        this.aliases = ['vcr', 'voicerequests', 'voicecommands'];
+        this.description = 'Toggle voice recognition commands';
         this.usage = '[on|off]';
-        this.userPerms = ['ManageGuild'];
+        this.inSameVC = true;
         this.options = [
             {
                 name: 'toggle',
                 opType: 'string',
                 required: false,
-                description: 'Enable or disable VC requests',
+                description: 'Enable or disable voice commands',
                 choices: [
                     { name: 'Enable', value: 'on' },
                     { name: 'Disable', value: 'off' },
@@ -28,46 +28,64 @@ export default class VCRequests extends Command {
         ];
 
         this.execute = async (client, ctx, args) => {
-            const currentStatus = await client.db.vcRequests.get(ctx.guild.id);
+            const guildId = ctx.guild.id;
+            const currentStatus = await client.db.vcRequests.get(guildId);
             const toggle = args[0]?.toLowerCase();
 
             // Show current status if no args
             if (!toggle) {
                 const status = currentStatus?.enabled ? 'enabled' : 'disabled';
-                const commands = ['play', 'skip', 'stop', 'pause', 'resume', 'autoplay'];
+                const commands = ['play <song>', 'skip', 'stop', 'pause', 'resume', 'autoplay'];
                 
                 return await ctx.reply({
                     embeds: [
                         client.embed().desc(
-                            `**VC Requests** is currently **${status}** for this server.\n\n` +
-                            `When enabled, users can type commands directly in the voice channel text chat:\n` +
-                            `${commands.map(c => `\`${c}\``).join(', ')}\n\n` +
-                            `Use \`${client.prefix}vcrequests on\` or \`${client.prefix}vcrequests off\` to toggle.`
+                            `**Voice Commands** is currently **${status}** for this server.\n\n` +
+                            `When enabled, speak these commands in voice chat:\n` +
+                            `${commands.map(c => `• "${c}"`).join('\n')}\n\n` +
+                            `Example: Say "play Pal Pal" to play that song.\n\n` +
+                            `Use \`${client.prefix}vcrequests on\` to enable.`
                         )
                     ],
                 });
             }
 
+            const player = client.getPlayer(ctx);
+
             // Toggle on
             if (toggle === 'on' || toggle === 'enable') {
-                if (currentStatus?.enabled) {
+                if (!player) {
                     return await ctx.reply({
-                        embeds: [client.embed().desc('VC Requests is already enabled.')],
+                        embeds: [client.embed().desc('Start playing music first, then enable voice commands.')],
                     });
                 }
 
-                await client.db.vcRequests.set(ctx.guild.id, {
+                if (currentStatus?.enabled) {
+                    return await ctx.reply({
+                        embeds: [client.embed().desc('Voice commands is already enabled.')],
+                    });
+                }
+
+                await client.db.vcRequests.set(guildId, {
                     enabled: true,
-                    enabledBy: ctx.author.id,
+                    oderId: ctx.author.id,
+                    voiceId: ctx.member.voice.channel.id,
                     enabledAt: Date.now(),
                 });
+
+                // Start listening
+                client.emit('startVoiceRecognition', player, ctx.member.voice.channel);
 
                 return await ctx.reply({
                     embeds: [
                         client.embed().desc(
-                            `VC Requests is now **enabled**.\n\n` +
-                            `Users can now type \`play <song>\`, \`skip\`, \`stop\`, \`pause\`, \`resume\`, or \`autoplay\` ` +
-                            `directly in the voice channel text chat.`
+                            `Voice commands is now **enabled**.\n\n` +
+                            `Speak in voice chat to control music:\n` +
+                            `• "play <song name>"\n` +
+                            `• "skip"\n` +
+                            `• "stop"\n` +
+                            `• "pause" / "resume"\n` +
+                            `• "autoplay"`
                         )
                     ],
                 });
@@ -77,14 +95,17 @@ export default class VCRequests extends Command {
             if (toggle === 'off' || toggle === 'disable') {
                 if (!currentStatus?.enabled) {
                     return await ctx.reply({
-                        embeds: [client.embed().desc('VC Requests is already disabled.')],
+                        embeds: [client.embed().desc('Voice commands is already disabled.')],
                     });
                 }
 
-                await client.db.vcRequests.delete(ctx.guild.id);
+                await client.db.vcRequests.delete(guildId);
+
+                // Stop listening
+                client.emit('stopVoiceRecognition', guildId);
 
                 return await ctx.reply({
-                    embeds: [client.embed().desc('VC Requests is now **disabled**.')],
+                    embeds: [client.embed().desc('Voice commands is now **disabled**.')],
                 });
             }
 
