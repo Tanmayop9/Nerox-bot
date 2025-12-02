@@ -78,6 +78,7 @@ export class ExtendedClient extends Client {
             // Server settings
             prefix: josh("prefix"),
             ignore: josh("ignore"),
+            vcRequests: josh("vcRequests"),
             
             // Music features
             liked: josh("liked"),
